@@ -1,0 +1,51 @@
+# Ignore Python bytecode files
+*.pyc
+*.pyo
+__pycache__/
+
+# Poetry virtual environment (local environment)
+.venv/
+env/
+venv/
+
+# Terraform files
+# Ignore Terraform state files, lock files, etc.
+*.tfstate
+*.tfstate.*
+.terraform/
+terraform.tfvars
+.terraform.lock.hcl
+
+# Docker related
+# Ignore Docker images, containers, and build artifacts
+**/*.log
+**/*.pid
+**/*.bak
+**/.env
+.docker/
+
+# Ignore AWS Lambda deployment package artifacts
+*.zip
+*.tar.gz
+
+# Ignore AWS-specific files
+.aws/
+
+# IDE-specific files (VSCode, PyCharm, etc.)
+.vscode/
+.idea/
+
+# OS-specific files (macOS, Windows, etc.)
+.DS_Store
+Thumbs.db
+
+# Ignore test and coverage files
+.coverage
+nosetests.xml
+pytest-debug.log
+test_reports/
+
+# Miscellaneous
+*.log
+*.bak
+*.swp
