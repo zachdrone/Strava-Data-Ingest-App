@@ -4,6 +4,8 @@ RUN pip install --no-cache-dir poetry
 
 ENV PATH="/root/.local/bin:$PATH"
 
+ENV PYTHONPATH="/var/task"
+
 WORKDIR /var/task
 
 COPY pyproject.toml poetry.lock ./

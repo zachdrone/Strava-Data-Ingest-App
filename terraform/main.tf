@@ -11,3 +11,5 @@ provider "aws" {
   region  = "us-east-1"
   profile = "strava"
 }
+
+data "aws_caller_identity" "current" {}

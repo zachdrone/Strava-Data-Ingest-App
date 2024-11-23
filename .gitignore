@@ -49,3 +49,5 @@ test_reports/
 *.log
 *.bak
 *.swp
+*.ipynb
+build.sh
