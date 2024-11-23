@@ -10,8 +10,8 @@ resource "aws_lambda_function" "health_endpoint" {
     }
   }
 
-  memory_size = 512  # Memory allocation
-  timeout     = 30   # Set timeout to 30 seconds (default is 3 seconds)
+  memory_size = 512
+  timeout     = 30
 }
 
 resource "aws_lambda_function" "callback_endpoint" {
@@ -26,6 +26,6 @@ resource "aws_lambda_function" "callback_endpoint" {
     }
   }
 
-  memory_size = 512  # Memory allocation
-  timeout     = 30   # Set timeout to 30 seconds (default is 3 seconds)
+  memory_size = 512
+  timeout     = 30
 }

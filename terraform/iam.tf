@@ -16,20 +16,20 @@ resource "aws_iam_role" "lambda_execution_role" {
 }
 
 data "aws_iam_policy_document" "lambda_policy_doc" {
-  statement {
-    effect = "Allow"
+  # statement {
+  #   effect = "Allow"
     
-    actions = [
-      "secretsmanager:GetResourcePolicy",
-      "secretsmanager:GetSecretValue",
-      "secretsmanager:DescribeSecret",
-      "secretsmanager:ListSecretVersionIds"
-    ]
+  #   actions = [
+  #     "secretsmanager:GetResourcePolicy",
+  #     "secretsmanager:GetSecretValue",
+  #     "secretsmanager:DescribeSecret",
+  #     "secretsmanager:ListSecretVersionIds"
+  #   ]
 
-    resources = [
-      "arn:aws:secretsmanager:us-east-1:${data.aws_caller_identity.current.account_id}:secret:strava_app-8ZESlw"
-    ]
-  }
+  #   resources = [
+  #     "arn:aws:secretsmanager:us-east-1:${data.aws_caller_identity.current.account_id}:secret:strava_app-8ZESlw"
+  #   ]
+  # }
 
   statement {
     effect = "Allow"
@@ -42,6 +42,20 @@ data "aws_iam_policy_document" "lambda_policy_doc" {
 
     resources = [
       "*"
+    ]
+  }
+
+  statement {
+    effect = "Allow"
+    
+    actions = [
+      "ssm:GetParameters",
+      "ssm:GetParameter",
+      "ssm:DescribeParameters"
+    ]
+
+    resources = [
+      "arn:aws:ssm:us-east-1:${data.aws_caller_identity.current.account_id}:parameter/strava*"
     ]
   }
 }
