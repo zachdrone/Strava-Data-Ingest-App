@@ -4,6 +4,36 @@ resource "aws_api_gateway_rest_api" "api" {
   description = "API Gateway for my Lambda functions"
 }
 
+resource "aws_api_gateway_deployment" "api_deployment" {
+  rest_api_id = aws_api_gateway_rest_api.api.id
+  stage_name  = "prod"  # This is the stage name (e.g., prod, dev)
+
+  depends_on = [
+    aws_api_gateway_integration.health_lambda_integration,
+    aws_api_gateway_method.health_get_method,
+    aws_api_gateway_integration.callback_lambda_integration,
+    aws_api_gateway_method.callback_get_method
+  ]
+}
+
+# # Authorizer
+# resource "aws_api_gateway_authorizer" "strava_authorizer" {
+#   name             = "StravaSignatureAuthorizer"
+#   rest_api_id      = aws_api_gateway_rest_api.api.id
+#   authorizer_uri   = aws_lambda_function.authorizer.invoke_arn
+#   authorizer_credentials = aws_iam_role.invocation_role.arn
+# }
+
+# # Modify the API Gateway method to use the authorizer
+# resource "aws_api_gateway_method" "get_method" {
+#   rest_api_id   = aws_api_gateway_rest_api.api.id
+#   resource_id   = aws_api_gateway_resource.root.id
+#   http_method   = "POST" # Or "GET" if applicable
+#   authorization = "CUSTOM"
+#   authorizer_id = aws_api_gateway_authorizer.strava_authorizer.id
+# }
+
+
 # Get Hello
 resource "aws_api_gateway_resource" "health" {
   rest_api_id = aws_api_gateway_rest_api.api.id
@@ -62,16 +92,4 @@ resource "aws_lambda_permission" "callback_allow_api_gateway" {
   function_name = aws_lambda_function.callback_endpoint.function_name
   principal     = "apigateway.amazonaws.com"
   source_arn    = "arn:aws:execute-api:${var.aws_region}:${data.aws_caller_identity.current.account_id}:*/*/*/*"
-}
-
-resource "aws_api_gateway_deployment" "api_deployment" {
-  rest_api_id = aws_api_gateway_rest_api.api.id
-  stage_name  = "prod"  # This is the stage name (e.g., prod, dev)
-
-  depends_on = [
-    aws_api_gateway_integration.health_lambda_integration,
-    aws_api_gateway_method.health_get_method,
-    aws_api_gateway_integration.callback_lambda_integration,
-    aws_api_gateway_method.callback_get_method
-  ]
 }
