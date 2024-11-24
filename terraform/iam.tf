@@ -40,7 +40,23 @@ data "aws_iam_policy_document" "lambda_policy_doc" {
     ]
 
     resources = [
-      "arn:aws:ssm:us-east-1:${data.aws_caller_identity.current.account_id}:parameter/strava*"
+      "arn:aws:ssm:${var.aws_region}:${data.aws_caller_identity.current.account_id}:parameter/strava*",
+      "arn:aws:ssm:${var.aws_region}:${data.aws_caller_identity.current.account_id}:parameter/encryption_key"
+    ]
+  }
+
+  statement {
+    effect = "Allow"
+    
+    actions = [
+      "dynamodb:DescribeTable",
+      "dynamodb:Query",
+      "dynamodb:Scan",
+      "dynamodb:PutItem"
+    ]
+
+    resources = [
+      "arn:aws:dynamodb:${var.aws_region}:${data.aws_caller_identity.current.account_id}:table/users"
     ]
   }
 }
@@ -57,29 +73,29 @@ resource "aws_iam_policy_attachment" "lambda_policy_attachment" {
   roles      = [aws_iam_role.lambda_execution_role.name]
 }
 
-data "aws_iam_policy_document" "invocation_assume_role" {
-  statement {
-    effect = "Allow"
+# data "aws_iam_policy_document" "invocation_assume_role" {
+#   statement {
+#     effect = "Allow"
 
-    principals {
-      type        = "Service"
-      identifiers = ["apigateway.amazonaws.com"]
-    }
+#     principals {
+#       type        = "Service"
+#       identifiers = ["apigateway.amazonaws.com"]
+#     }
 
-    actions = ["sts:AssumeRole"]
-  }
-}
+#     actions = ["sts:AssumeRole"]
+#   }
+# }
 
-resource "aws_iam_role" "invocation_role" {
-  name               = "api_gateway_auth_invocation"
-  path               = "/"
-  assume_role_policy = data.aws_iam_policy_document.invocation_assume_role.json
-}
+# resource "aws_iam_role" "invocation_role" {
+#   name               = "api_gateway_auth_invocation"
+#   path               = "/"
+#   assume_role_policy = data.aws_iam_policy_document.invocation_assume_role.json
+# }
 
-data "aws_iam_policy_document" "invocation_policy" {
-  statement {
-    effect    = "Allow"
-    actions   = ["lambda:InvokeFunction"]
-    resources = [aws_lambda_function.authorizer.arn]
-  }
-}
+# data "aws_iam_policy_document" "invocation_policy" {
+#   statement {
+#     effect    = "Allow"
+#     actions   = ["lambda:InvokeFunction"]
+#     resources = [aws_lambda_function.authorizer.arn]
+#   }
+# }

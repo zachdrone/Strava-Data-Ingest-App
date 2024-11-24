@@ -1,6 +1,7 @@
 import boto3
-from botocore.exceptions import ClientError
 import requests
+from cryptography.fernet import Fernet
+from botocore.exceptions import ClientError
 
 def _get_parameter(client, param, decryption):
     try:
@@ -42,3 +43,15 @@ def exchange_auth_code(client_id, client_secret, auth_code):
     )
 
     return r.json()
+
+def encrypt_data(data):
+    key = get_parameter('encryption_key', True)
+    fernet = Fernet(key)
+    encrypted_data = fernet.encrypt(data.encode())
+    return encrypted_data
+
+def decrypt_data(encrypted_data):
+    key = get_parameter('encryption_key', True)
+    fernet = Fernet(key)
+    decrypted_data = fernet.decrypt(encrypted_data)
+    return decrypted_data.decode()
