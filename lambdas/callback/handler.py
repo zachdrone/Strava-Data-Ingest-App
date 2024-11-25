@@ -3,6 +3,7 @@ import boto3
 from aws_lambda_powertools import Logger, Tracer
 from lambdas.helpers.auth import get_client_params, exchange_auth_code, get_parameter, encrypt_data
 from lambdas.helpers.boto3_singleton import get_boto3_resource
+from lambdas.helpers.user import User
 
 logger = Logger(service="my-lambda-service")
 tracer = Tracer(service="my-lambda-service")
@@ -17,33 +18,14 @@ def lambda_handler(event, context):
 
     expected_state = get_parameter('strava_callback_state', True)
     received_state = event['queryStringParameters']['state']
-    scope = event['queryStringParameters']['scope']
-
     if received_state != expected_state:
         return {
             "statusCode": 400,
             "body": json.dumps({"message": "Invalid state parameter."})
         }
-
-    client_params = get_client_params()
-
-    auth = exchange_auth_code(
-        **client_params,
-        auth_code=event['queryStringParameters']['code']
-    )
-
-    user = auth['athlete']
-
-    table.put_item(
-        Item={
-            'id': user['id'],
-            'username': user['username'],
-            'access_token': encrypt_data(auth['access_token']),
-            'token_expires_at': auth['expires_at'],
-            'refresh_token': encrypt_data(auth['refresh_token']),
-            'scope': scope,
-            'activity_replication': []
-        }
-    )
+    
+    user = User()
+    user.scope = event['queryStringParameters']['scope']
+    user.load_from_auth_code(auth_code=event['queryStringParameters']['code'])
 
     return {"statusCode": 200, "body": "Hello from callback!"}

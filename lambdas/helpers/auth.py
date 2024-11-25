@@ -2,7 +2,7 @@ import boto3
 import requests
 from cryptography.fernet import Fernet
 from botocore.exceptions import ClientError
-from boto3_singleton import get_boto3_client
+from lambdas.helpers.boto3_singleton import get_boto3_client
 
 def get_parameter(param, decryption, ssm=get_boto3_client('ssm')):
     try:
