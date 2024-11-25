@@ -13,9 +13,7 @@ COPY pyproject.toml poetry.lock ./
 RUN poetry config virtualenvs.create false && \
     poetry install
 
-COPY . .
+COPY lambdas lambdas
 
-RUN python -c "import aws_lambda_powertools"
-
-CMD ["lambda_handler.lambda_handler"]
+CMD ["lambdas.lambda_handler.lambda_handler"]
 # ENTRYPOINT ["/bin/bash"]

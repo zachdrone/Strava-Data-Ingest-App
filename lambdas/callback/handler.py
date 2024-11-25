@@ -15,9 +15,10 @@ def lambda_handler(event, context):
     logger.info(event)
 
     expected_state = get_parameter('strava_callback_state', True)
-    recieved_state = event['queryStringParameters']['state']
+    received_state = event['queryStringParameters']['state']
+    scope = event['queryStringParameters']['scope']
 
-    if recieved_state != expected_state:
+    if received_state != expected_state:
         return {
             "statusCode": 400,
             "body": json.dumps({"message": "Invalid state parameter."})
@@ -30,16 +31,16 @@ def lambda_handler(event, context):
         auth_code=event['queryStringParameters']['code']
     )
 
-    token = auth['refresh_token']
     user = auth['athlete']
-
-    encrypted_token = encrypt_data(token)
 
     table.put_item(
         Item={
             'id': user['id'],
             'username': user['username'],
-            'refresh_token': encrypted_token,
+            'access_token': encrypt_data(auth['access_token']),
+            'token_expires_at': auth['expires_at'],
+            'refresh_token': encrypt_data(auth['refresh_token']),
+            'scope': scope,
             'activity_replication': []
         }
     )

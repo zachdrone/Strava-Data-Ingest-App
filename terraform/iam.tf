@@ -18,7 +18,7 @@ resource "aws_iam_role" "lambda_execution_role" {
 data "aws_iam_policy_document" "lambda_policy_doc" {
   statement {
     effect = "Allow"
-    
+
     actions = [
       "logs:CreateLogGroup",
       "logs:CreateLogStream",
@@ -32,7 +32,7 @@ data "aws_iam_policy_document" "lambda_policy_doc" {
 
   statement {
     effect = "Allow"
-    
+
     actions = [
       "ssm:GetParameters",
       "ssm:GetParameter",
@@ -41,13 +41,14 @@ data "aws_iam_policy_document" "lambda_policy_doc" {
 
     resources = [
       "arn:aws:ssm:${var.aws_region}:${data.aws_caller_identity.current.account_id}:parameter/strava*",
-      "arn:aws:ssm:${var.aws_region}:${data.aws_caller_identity.current.account_id}:parameter/encryption_key"
+      "arn:aws:ssm:${var.aws_region}:${data.aws_caller_identity.current.account_id}:parameter/encryption_key",
+      "arn:aws:ssm:${var.aws_region}:${data.aws_caller_identity.current.account_id}:parameter/webhook_verify_token",
     ]
   }
 
   statement {
     effect = "Allow"
-    
+
     actions = [
       "dynamodb:DescribeTable",
       "dynamodb:Query",

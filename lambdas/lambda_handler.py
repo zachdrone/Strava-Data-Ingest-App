@@ -1,11 +1,12 @@
-# lambda_handler.py
-
 import os
+from aws_lambda_powertools import Logger
+
+logger = Logger(service="dynamic-handler")
 
 def lambda_handler(event, context):
     # Get the handler function name from environment variable
     handler = os.getenv('handler', 'default.handler')  # fallback to 'default.handler'
-    print(" in lambda_handler.lambda_handler")
+    logger.info(f"using handler {handler}")
     # Dynamically import the handler module and get the function
     try:
         module_name, function_name = handler.rsplit('.', 1)
