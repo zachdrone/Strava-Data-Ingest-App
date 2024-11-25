@@ -1,7 +1,7 @@
 import json
 import boto3
 from aws_lambda_powertools import Logger, Tracer
-from lambdas.helpers.auth import get_client_params, exchange_auth_code, get_parameter, encrypt_data
+from lambdas.helpers.auth import get_parameter
 from lambdas.helpers.boto3_singleton import get_boto3_resource
 from lambdas.helpers.user import User
 

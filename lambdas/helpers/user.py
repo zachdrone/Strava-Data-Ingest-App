@@ -2,7 +2,8 @@ import boto3
 import requests
 from datetime import datetime
 from botocore.exceptions import ClientError
-from lambdas.helpers.auth import get_parameter, encrypt_data, decrypt_data
+from cryptography.fernet import Fernet
+from lambdas.helpers.auth import get_parameter
 from lambdas.helpers.boto3_singleton import get_boto3_client, get_boto3_resource
 from lambdas.helpers.requests_wrapper import make_request
 
@@ -29,6 +30,58 @@ class User():
 
         self._client_secret = None
         self._client_id = None
+
+        self._cipher = None
+        self._encryption_key = None
+
+    @property
+    def scope(self):
+        return self._scope
+    
+    @scope.setter
+    def scope(self, value):
+        self._scope = value
+
+    @property
+    def access_token(self):
+        return self.cipher.decrypt(self._access_token).decode()
+
+    @access_token.setter
+    def access_token(self, value):
+        self._access_token = self.cipher.encrypt(value.encode())
+
+    @property
+    def refresh_token(self):
+        return self.cipher.decrypt(self._refresh_token).decode()
+    
+    @refresh_token.setter
+    def refresh_token(self, value):
+        self._refresh_token = self.cipher.encrypt(value.encode())
+
+    @property
+    def client_id(self):
+        if not self._client_id:
+            self._client_id = get_parameter('strava_client_id', False, self.ssm)
+        return self._client_id
+    
+    @property
+    def client_secret(self):
+        if not self._client_secret:
+            self._client_secret = get_parameter('strava_client_secret', True, self.ssm)
+        return self._client_secret
+    
+    @property
+    def encryption_key(self):
+        if not self._encryption_key:
+            self._encryption_key = get_parameter('encryption_key', True, self.ssm)
+        return self._encryption_key
+
+    @property
+    def cipher(self):
+        if not self._cipher:
+            self._cipher = Fernet(self.encryption_key)
+        return self._cipher
+
 
     def load_from_db(self):
         """
@@ -137,39 +190,3 @@ class User():
         self.activity_replication = []
 
         self.save_to_db()
-
-    @property
-    def scope(self):
-        return self._scope
-    
-    @scope.setter
-    def scope(self, value):
-        self._scope = value
-
-    @property
-    def access_token(self):
-        return decrypt_data(self._access_token)
-
-    @access_token.setter
-    def access_token(self, value):
-        self._access_token = encrypt_data(value)
-
-    @property
-    def refresh_token(self):
-        return decrypt_data(self._refresh_token)
-    
-    @refresh_token.setter
-    def refresh_token(self, value):
-        self._refresh_token = encrypt_data(value)
-
-    @property
-    def client_id(self):
-        if not self._client_id:
-            self._client_id = get_parameter('strava_client_id', False, self.ssm)
-        return self._client_id
-    
-    @property
-    def client_secret(self):
-        if not self._client_secret:
-            self._client_secret = get_parameter('strava_client_secret', True, self.ssm)
-        return self._client_secret

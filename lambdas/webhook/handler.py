@@ -3,7 +3,7 @@ from aws_lambda_powertools import Logger
 from aws_lambda_powertools.event_handler import CORSConfig, APIGatewayRestResolver
 from lambdas.helpers.auth import get_parameter
 from lambdas.helpers.boto3_singleton import get_boto3_client
-
+from lambdas.helpers.user import User
 logger = Logger(service="strava-webhook")
 app = APIGatewayRestResolver(cors=CORSConfig(allow_origin="*"))
 
@@ -37,10 +37,12 @@ def webhook_handler():
     if received_subscription_id != int(WEBHOOK_SUBSCRIPTION_ID):
         logger.error("Invalid subscription id")
         return {"statusCode": 403, "body": "Forbidden"}
+    
+    user = User(id=data.get('owner_id'))
+    user.load_from_db()
 
     return {"statusCode": 200, "body": "Event received successfully"}
 
 def lambda_handler(event, context):
-    logger.info("wtf")
     logger.info(event)
     return app.resolve(event, context)
