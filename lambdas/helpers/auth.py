@@ -2,10 +2,11 @@ import boto3
 import requests
 from cryptography.fernet import Fernet
 from botocore.exceptions import ClientError
+from boto3_singleton import get_boto3_client
 
-def _get_parameter(client, param, decryption):
+def get_parameter(param, decryption, ssm=get_boto3_client('ssm')):
     try:
-        get_parameter_response = client.get_parameter(
+        get_parameter_response = ssm.get_parameter(
             Name=param,
             WithDecryption=decryption
         )
@@ -13,15 +14,6 @@ def _get_parameter(client, param, decryption):
         raise e
 
     return get_parameter_response['Parameter']['Value']
-
-def get_parameter(param, decryption):
-    session = boto3.session.Session()
-    client = session.client(
-        service_name='ssm',
-        region_name='us-east-1'
-    )
-
-    return _get_parameter(client, param, decryption)
 
 def get_client_params():
     return {

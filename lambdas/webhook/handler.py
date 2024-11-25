@@ -2,11 +2,11 @@ import json
 from aws_lambda_powertools import Logger
 from aws_lambda_powertools.event_handler import CORSConfig, APIGatewayRestResolver
 from lambdas.helpers.auth import get_parameter
+from lambdas.helpers.boto3_singleton import get_boto3_client
 
 logger = Logger(service="strava-webhook")
 app = APIGatewayRestResolver(cors=CORSConfig(allow_origin="*"))
 
-CLIENT_SECRET = get_parameter('strava_client_secret', True)
 WEBHOOK_VERIFY_TOKEN = get_parameter('webhook_verify_token', True)
 WEBHOOK_SUBSCRIPTION_ID = get_parameter('webhook_subscription_id', True)
 

@@ -2,11 +2,12 @@ import json
 import boto3
 from aws_lambda_powertools import Logger, Tracer
 from lambdas.helpers.auth import get_client_params, exchange_auth_code, get_parameter, encrypt_data
+from lambdas.helpers.boto3_singleton import get_boto3_resource
 
 logger = Logger(service="my-lambda-service")
 tracer = Tracer(service="my-lambda-service")
 
-dynamodb = boto3.resource('dynamodb')
+dynamodb = get_boto3_resource('dynamodb')
 table = dynamodb.Table('users')
 
 @logger.inject_lambda_context
