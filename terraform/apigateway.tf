@@ -22,24 +22,6 @@ resource "aws_api_gateway_deployment" "api_deployment" {
   ]
 }
 
-# # Authorizer
-# resource "aws_api_gateway_authorizer" "strava_authorizer" {
-#   name             = "StravaSignatureAuthorizer"
-#   rest_api_id      = aws_api_gateway_rest_api.api.id
-#   authorizer_uri   = aws_lambda_function.authorizer.invoke_arn
-#   authorizer_credentials = aws_iam_role.invocation_role.arn
-# }
-
-# # Modify the API Gateway method to use the authorizer
-# resource "aws_api_gateway_method" "get_method" {
-#   rest_api_id   = aws_api_gateway_rest_api.api.id
-#   resource_id   = aws_api_gateway_resource.root.id
-#   http_method   = "POST" # Or "GET" if applicable
-#   authorization = "CUSTOM"
-#   authorizer_id = aws_api_gateway_authorizer.strava_authorizer.id
-# }
-
-
 # Health
 resource "aws_api_gateway_resource" "health" {
   rest_api_id = aws_api_gateway_rest_api.api.id
