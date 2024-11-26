@@ -1,38 +1,44 @@
-import requests
 from datetime import datetime, timezone
 from xml.etree.ElementTree import Element, SubElement, tostring
 from datetime import datetime, timedelta, timezone
+from lambdas.helpers.requests_wrapper import make_request
 
 class Strava():
-    API_BASE_URL = "https://www.strava.com/api/v3"
+    STRAVA_BASE_URL = "https://www.strava.com"
 
     def __init__(
             self,
+            user,
             client_id,
-            client_secret
+            client_secret,
         ):
         self.client_id = client_id
         self.client_secret = client_secret
+        self.user = user
 
-    def list_activities(self, access_token):
-        r = requests.get(
-            f"{self.API_BASE_URL}/athlete/activities",
+    def list_activities(self):
+        response = make_request(
+            url=f"{self.STRAVA_BASE_URL}/api/v3/athlete/activities",
+            method='GET',
             headers={
-                "Authorization": f"Bearer {access_token}"
+                "Authorization": f"Bearer {self.user.access_token}"
             }
         )
-        return r.json()
+        return response
     
-    def get_activity(self, id, access_token):
-        r = requests.get(
-            f"{self.API_BASE_URL}/activities/{id}",
-            headers={
-                "Authorization": f"Bearer {access_token}"
-            }
-        )
-        return r.json()
+    def get_activity(self, id):
+        headers = {
+            "Authorization": f"Bearer {self.user.access_token}"
+        }
 
-    def refresh_tokens(self, refresh_token):
+        response = make_request(
+            url=f"{self.STRAVA_BASE_URL}/activities/{id}",
+            method='GET',
+            headers=headers
+        )
+        return response
+
+    def refresh_tokens(self):
         if not self.is_token_expired():
             return True
         
@@ -40,21 +46,20 @@ class Strava():
             "client_id": self.client_id,
             "client_secret": self.client_secret,
             "grant_type": "refresh_token",
-            "refresh_token": refresh_token,
+            "refresh_token": self.user.refresh_token,
         }
-
-        r = requests.post(
-            "https://www.strava.com/oauth/token",
-            data=params,
+        
+        response = make_request(
+            url=f"{self.STRAVA_BASE_URL}/oauth/token",
+            method='POST',
+            data=params
         )
 
-        data = r.json()
+        self.user.access_token = response.get('access_token')
+        self.user.expires_at = response.get('expires_at')
+        self.user.refresh_token = response.get('refresh_token')
 
-        return {
-            "access_token": data.get('access_token'),
-            "expires_at": data.get('expires_at'),
-            "refresh_token": data.get('refresh_token')
-        }
+        return True
     
     def exchange_auth_code(self, auth_code):
         params = {
@@ -64,38 +69,36 @@ class Strava():
             "grant_type": "authorization_code"
         }
 
-        r = requests.post(
-            "https://www.strava.com/oauth/token",
-            data=params,
+        response = make_request(
+            url=f"{self.STRAVA_BASE_URL}/oauth/token",
+            method='POST',
+            data=params
         )
-        auth = r.json()
-        user = auth['athlete']
-        return  {
-            "access_token": auth['access_token'],
-            "refresh_token": auth['refresh_token'],
-            "token_expires_at": auth['expires_at'],
-            "id": user['id'],
-            "username": user['username']
-        }
 
-    def get_activity_streams(self, id, access_token):
+        self.user.access_token = response['access_token']
+        self.user.refresh_token = response['refresh_token']
+        self.user.token_expires_at = response['expires_at']
+        self.user.id = response['athlete']['id']
+        self.user.username = response['athlete']['username']
+
+    def get_activity_streams(self, id):
         headers = {
-            "Authorization": f"Bearer {access_token}"
+            "Authorization": f"Bearer {self.user.access_token}"
         }
         
         params = {
             "keys": "latlng,time,altitude,velocity_smooth,time,distance,cadence",
             "key_by_type": "true"
         }
-        
-        response = requests.get(f"{self.API_BASE_URL}/activities/{id}/streams", headers=headers, params=params)
-        
-        if response.status_code == 200:
-            return response.json()
-        else:
-            print(f"Error retrieving activity streams: {response.status_code}")
-            print(response.text)
-            return None
+
+        response = make_request(
+            url=f"{self.STRAVA_BASE_URL}/activities/{id}/streams",
+            method='GET',
+            headers=headers,
+            params=params
+        )
+                
+        return response
         
     def create_gpx_from_streams(self, stream_data, activity):
         latlng = stream_data.get("latlng", {}).get("data", [])
@@ -135,9 +138,9 @@ class Strava():
         gpx_data = tostring(gpx, encoding='utf-8', method='xml')
         return gpx_data
 
-    def upload_gpx(self, gpx_data, access_token, name="Duplicated Activity"):
+    def upload_gpx(self, gpx_data, name="Duplicated Activity"):
         headers = {
-            "Authorization": f"Bearer {access_token}"
+            "Authorization": f"Bearer {self.user.access_token}"
         }
         
         files = {
@@ -145,24 +148,25 @@ class Strava():
             "data_type": (None, "gpx"),
             "name": (None, name),
         }
+                
+        response = make_request(
+            url=f"{self.STRAVA_BASE_URL}/uploads",
+            method='POST',
+            headers=headers,
+            files=files
+        )
         
-        upload_url = f"{self.API_BASE_URL}/uploads"
-        response = requests.post(upload_url, headers=headers, files=files)
-        
-        if response.status_code == 201:
-            print("GPX uploaded successfully.")
-            return response.json()
-        else:
-            print(f"Error uploading GPX: {response.status_code}")
-            print(response.text)
-        
-        return None
+        return response
     
-    def get_upload(self, upload_id, access_token):
+    def get_upload(self, upload_id):
         headers = {
-            "Authorization": f"Bearer {access_token}"
+            "Authorization": f"Bearer {self.user.access_token}"
         }
 
-        upload_url = f"{self.API_BASE_URL}/uploads/{upload_id}"
-        response = requests.get(upload_url, headers=headers)
-        return response.json()
+        response = make_request(
+            url=f"{self.STRAVA_BASE_URL}/uploads/{upload_id}",
+            method='GET',
+            headers=headers,
+        )
+
+        return response

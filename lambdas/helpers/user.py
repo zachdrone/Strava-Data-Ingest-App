@@ -1,11 +1,9 @@
-import boto3
-import requests
 from datetime import datetime
 from botocore.exceptions import ClientError
 from cryptography.fernet import Fernet
 from lambdas.helpers.auth import get_parameter
 from lambdas.helpers.boto3_singleton import get_boto3_client, get_boto3_resource
-from lambdas.helpers.requests_wrapper import make_request
+from lambdas.helpers.strava import Strava
 
 class User():
 
@@ -34,6 +32,12 @@ class User():
         self._cipher = None
         self._encryption_key = None
 
+        self.strava = Strava(
+            self,
+            get_parameter('strava_client_id', False, self.ssm),
+            get_parameter('strava_client_secret', True, self.ssm),
+        )
+
     @property
     def scope(self):
         return self._scope
@@ -57,18 +61,6 @@ class User():
     @refresh_token.setter
     def refresh_token(self, value):
         self._refresh_token = self.cipher.encrypt(value.encode())
-
-    @property
-    def client_id(self):
-        if not self._client_id:
-            self._client_id = get_parameter('strava_client_id', False, self.ssm)
-        return self._client_id
-    
-    @property
-    def client_secret(self):
-        if not self._client_secret:
-            self._client_secret = get_parameter('strava_client_secret', True, self.ssm)
-        return self._client_secret
     
     @property
     def encryption_key(self):
@@ -145,48 +137,13 @@ class User():
         if not self.is_token_expired():
             return True
         
-        params = {
-            "client_id": self.client_id,
-            "client_secret": self.client_secret,
-            "grant_type": "refresh_token",
-            "refresh_token": self.refresh_token,
-        }
-
-        r = requests.post(
-            "https://www.strava.com/oauth/token",
-            data=params,
-        )
-
-        data = r.json()
-        self.access_token = data.get('access_token')
-        self.expires_at = data.get('expires_at')
-        self.refresh_token = data.get('refresh_token')
+        self.strava.refresh_tokens()
 
         self.save_to_db()
 
         return True
     
     def load_from_auth_code(self, auth_code):
-        params = {
-            "client_id": self.client_id,
-            "client_secret": self.client_secret,
-            "code": auth_code,
-            "grant_type": "authorization_code"
-        }
-
-        r = requests.post(
-            "https://www.strava.com/oauth/token",
-            data=params,
-        )
-        auth = r.json()
-
-        self.access_token = auth['access_token']
-        self.refresh_token = auth['refresh_token']
-        self.token_expires_at = auth['expires_at']
-
-        user = auth['athlete']
-        self.id=user['id']
-        self.username = user['username']
-        self.activity_replication = []
+        self.strava.exchange_auth_code(auth_code)
 
         self.save_to_db()
