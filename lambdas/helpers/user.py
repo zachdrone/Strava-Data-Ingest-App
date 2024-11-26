@@ -1,7 +1,7 @@
 from datetime import datetime
 from botocore.exceptions import ClientError
 from cryptography.fernet import Fernet
-from lambdas.helpers.auth import get_parameter
+from lambdas.helpers.ssm import get_parameter
 from lambdas.helpers.boto3_singleton import get_boto3_client, get_boto3_resource
 from lambdas.helpers.strava import Strava
 
