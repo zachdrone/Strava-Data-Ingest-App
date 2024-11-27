@@ -1,8 +1,8 @@
 import json
 from aws_lambda_powertools import Logger
 from aws_lambda_powertools.event_handler import CORSConfig, APIGatewayRestResolver
-from lambdas.helpers.ssm import get_parameter
-from lambdas.helpers.user import User
+from src.utils.ssm import get_parameter
+from src.utils.user import User
 
 logger = Logger(service="strava-webhook")
 app = APIGatewayRestResolver(cors=CORSConfig(allow_origin="*"))

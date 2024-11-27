@@ -1,6 +1,6 @@
 import requests
 from botocore.exceptions import ClientError
-from lambdas.helpers.boto3_singleton import get_boto3_client
+from src.utils.boto3_singleton import get_boto3_client
 
 def get_parameter(param, decryption, ssm=get_boto3_client('ssm')):
     try:

@@ -1,7 +1,7 @@
 import os
 from unittest.mock import patch, MagicMock
 import pytest
-from lambdas.lambda_handler import lambda_handler
+from src.lambdas.lambda_handler import lambda_handler
 
 @pytest.fixture
 def mock_context():

@@ -6,7 +6,7 @@ resource "aws_lambda_function" "health_endpoint" {
 
   environment {
     variables = {
-      handler = "lambdas.health.handler.lambda_handler"
+      handler = "src.lambdas.health.handler.lambda_handler"
     }
   }
 
@@ -22,7 +22,7 @@ resource "aws_lambda_function" "callback_endpoint" {
 
   environment {
     variables = {
-      handler = "lambdas.callback.handler.lambda_handler"
+      handler = "src.lambdas.callback.handler.lambda_handler"
     }
   }
 
@@ -38,7 +38,7 @@ resource "aws_lambda_function" "webhook_endpoint" {
 
   environment {
     variables = {
-      handler = "lambdas.webhook.handler.lambda_handler"
+      handler = "src.lambdas.webhook.handler.lambda_handler"
     }
   }
 

@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 from xml.etree.ElementTree import Element, SubElement, tostring, ElementTree
 from datetime import datetime, timedelta, timezone
-from lambdas.helpers.requests_wrapper import make_request
+from src.utils.requests_wrapper import make_request
 
 class Strava():
     STRAVA_BASE_URL = "https://www.strava.com"

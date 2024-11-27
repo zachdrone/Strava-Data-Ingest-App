@@ -1,7 +1,7 @@
 # tests/test_my_lambda_1.py
 
 import pytest
-from lambdas.health.handler import lambda_handler
+from src.lambdas.health.handler import lambda_handler
 
 def test_lambda_handler(lambda_context):
     # Simulate a Lambda event

@@ -1,8 +1,8 @@
 import json
 import boto3
 from aws_lambda_powertools import Logger, Tracer
-from lambdas.helpers.ssm import get_parameter
-from lambdas.helpers.user import User
+from src.utils.ssm import get_parameter
+from src.utils.user import User
 
 logger = Logger(service="my-lambda-service")
 tracer = Tracer(service="my-lambda-service")

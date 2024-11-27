@@ -13,7 +13,7 @@ COPY pyproject.toml poetry.lock ./
 RUN poetry config virtualenvs.create false && \
     poetry install
 
-COPY lambdas lambdas
+COPY src src
 
-CMD ["lambdas.lambda_handler.lambda_handler"]
+CMD ["src.lambdas.lambda_handler.lambda_handler"]
 # ENTRYPOINT ["/bin/bash"]
