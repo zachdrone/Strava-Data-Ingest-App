@@ -56,6 +56,6 @@ def webhook_handler():
 
     return {"statusCode": 200, "body": "Event received successfully"}
 
+@logger.inject_lambda_context(log_event=True)
 def lambda_handler(event, context):
-    logger.info(event)
     return app.resolve(event, context)

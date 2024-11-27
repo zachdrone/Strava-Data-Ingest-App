@@ -2,16 +2,13 @@ import json
 import boto3
 from aws_lambda_powertools import Logger, Tracer
 from lambdas.helpers.ssm import get_parameter
-from lambdas.helpers.boto3_singleton import get_boto3_resource
 from lambdas.helpers.user import User
 
 logger = Logger(service="my-lambda-service")
 tracer = Tracer(service="my-lambda-service")
 
-dynamodb = get_boto3_resource('dynamodb')
-table = dynamodb.Table('users')
 
-@logger.inject_lambda_context
+@logger.inject_lambda_context(log_event=True)
 @tracer.capture_lambda_handler
 def lambda_handler(event, context):
     logger.info(event)
@@ -28,4 +25,4 @@ def lambda_handler(event, context):
     user.scope = event['queryStringParameters']['scope']
     user.load_from_auth_code(auth_code=event['queryStringParameters']['code'])
 
-    return {"statusCode": 200, "body": "Hello from callback!"}
+    return {"statusCode": 200, "body": "Authorized!"}
