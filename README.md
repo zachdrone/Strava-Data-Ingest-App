@@ -1,1 +1,1 @@
-# strava-api-project
+# exercise-api-project
