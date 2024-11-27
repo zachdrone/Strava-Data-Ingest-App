@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from xml.etree.ElementTree import Element, SubElement, tostring
+from xml.etree.ElementTree import Element, SubElement, tostring, ElementTree
 from datetime import datetime, timedelta, timezone
 from lambdas.helpers.requests_wrapper import make_request
 
@@ -32,14 +32,14 @@ class Strava():
         }
 
         response = make_request(
-            url=f"{self.STRAVA_BASE_URL}/activities/{id}",
+            url=f"{self.STRAVA_BASE_URL}/api/v3/activities/{id}",
             method='GET',
             headers=headers
         )
         return response
 
     def refresh_tokens(self):
-        if not self.is_token_expired():
+        if not self.user.is_token_expired():
             return True
         
         params = {
@@ -92,7 +92,7 @@ class Strava():
         }
 
         response = make_request(
-            url=f"{self.STRAVA_BASE_URL}/activities/{id}/streams",
+            url=f"{self.STRAVA_BASE_URL}/api/v3/activities/{id}/streams",
             method='GET',
             headers=headers,
             params=params
@@ -136,6 +136,7 @@ class Strava():
                 cadence_elem.text = str(cadence[i])
         
         gpx_data = tostring(gpx, encoding='utf-8', method='xml')
+
         return gpx_data
 
     def upload_gpx(self, gpx_data, name="Duplicated Activity"):
@@ -150,7 +151,7 @@ class Strava():
         }
                 
         response = make_request(
-            url=f"{self.STRAVA_BASE_URL}/uploads",
+            url=f"{self.STRAVA_BASE_URL}/api/v3/uploads",
             method='POST',
             headers=headers,
             files=files
@@ -164,7 +165,7 @@ class Strava():
         }
 
         response = make_request(
-            url=f"{self.STRAVA_BASE_URL}/uploads/{upload_id}",
+            url=f"{self.STRAVA_BASE_URL}/api/v3/uploads/{upload_id}",
             method='GET',
             headers=headers,
         )
