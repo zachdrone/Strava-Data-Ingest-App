@@ -76,10 +76,6 @@ class User():
 
 
     def load_from_db(self):
-        """
-        Load user data from DynamoDB based on id.
-        Populate instance variables with the retrieved data.
-        """
         if not self.id:
             raise ValueError("User ID must be set to load data from DB.")
         
@@ -103,9 +99,6 @@ class User():
             return False
         
     def save_to_db(self):
-        """
-        Save or update the current user information to DynamoDB.
-        """
         if not self.id:
             raise ValueError("User ID must be set to save data to DB.")
         
@@ -125,12 +118,15 @@ class User():
         except ClientError as e:
             print(f"Error saving user data to DynamoDB: {e}")
             return False
+        
+    def delete_from_db(self):
+        try:
+            self.table.delete_item(Key={'id': self.id})
+        except ClientError as e:
+            print(f"Error deleting user data to DynamoDB: {e}")
+            return False   
 
     def is_token_expired(self):
-        """
-        Dummy method to check if the token is expired (implement your logic).
-        """
-        # Add your logic to determine if the token is expired
         return self.token_expires_at < int(datetime.now().timestamp())
     
     def refresh_tokens(self):

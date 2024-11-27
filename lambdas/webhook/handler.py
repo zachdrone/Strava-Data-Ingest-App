@@ -2,8 +2,8 @@ import json
 from aws_lambda_powertools import Logger
 from aws_lambda_powertools.event_handler import CORSConfig, APIGatewayRestResolver
 from lambdas.helpers.ssm import get_parameter
-from lambdas.helpers.boto3_singleton import get_boto3_client
 from lambdas.helpers.user import User
+
 logger = Logger(service="strava-webhook")
 app = APIGatewayRestResolver(cors=CORSConfig(allow_origin="*"))
 
@@ -32,14 +32,27 @@ def webhook_handler():
     logger.info(f"Received data: {data}")
 
     # Validate subscription id
-    received_subscription_id = data.get('subscription_id')
+    received_subscription_id = data['subscription_id']
     
     if received_subscription_id != int(WEBHOOK_SUBSCRIPTION_ID):
         logger.error("Invalid subscription id")
         return {"statusCode": 403, "body": "Forbidden"}
     
-    user = User(id=data.get('owner_id'))
+    if data['aspect_type'] == 'delete':
+        logger.info("skipping delete event")
+        return {"statusCode": 200, "body": "Skipping delete event"}
+    
+    user = User(id=data['owner_id'])
+    if data['aspect_type'] == 'update':
+        updates = data.get('updates')
+        if updates.get('authorized') == 'false':
+            logger.info(f"User {user.id} revoked access, deleting from db")
+            user.delete_from_db()
+            return
+
     user.load_from_db()
+
+    logger.info(user.username)
 
     return {"statusCode": 200, "body": "Event received successfully"}
 
