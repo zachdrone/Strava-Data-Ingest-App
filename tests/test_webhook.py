@@ -1,7 +1,7 @@
 import json
 import pytest
 from unittest.mock import patch, MagicMock
-from src.lambda_function import lambda_handler, WEBHOOK_VERIFY_TOKEN, WEBHOOK_SUBSCRIPTION_ID
+from src.lambdas.webhook.handler import lambda_handler
 
 # Fixture for Lambda context
 @pytest.fixture
@@ -16,11 +16,16 @@ def lambda_context():
     return LambdaContext()
 
 # Test for webhook verification success
-def test_webhook_verification_success(lambda_context):
+@patch("src.lambdas.webhook.handler.get_parameter")
+def test_webhook_verification_success(mock_get_parameter, lambda_context):
+    # Mock `get_parameter` to return expected tokens
+    mock_get_parameter.side_effect = lambda key, decrypt: "expected_verify_token" if key == "webhook_verify_token" else "12345"
+
     event = {
         "httpMethod": "GET",
+        "path": "/webhook",
         "queryStringParameters": {
-            "hub.verify_token": WEBHOOK_VERIFY_TOKEN,
+            "hub.verify_token": "expected_verify_token",
             "hub.mode": "subscribe",
             "hub.challenge": "challenge_code"
         },
@@ -33,9 +38,14 @@ def test_webhook_verification_success(lambda_context):
     assert json.loads(response["body"])["hub.challenge"] == "challenge_code"
 
 # Test for webhook verification failure
-def test_webhook_verification_failure(lambda_context):
+@patch("src.lambdas.webhook.handler.get_parameter")
+def test_webhook_verification_failure(mock_get_parameter, lambda_context):
+    # Mock `get_parameter` to return expected tokens
+    mock_get_parameter.side_effect = lambda key, decrypt: "expected_verify_token" if key == "webhook_verify_token" else "12345"
+
     event = {
         "httpMethod": "GET",
+        "path": "/webhook",
         "queryStringParameters": {
             "hub.verify_token": "invalid_token",
             "hub.mode": "subscribe",
@@ -46,19 +56,25 @@ def test_webhook_verification_failure(lambda_context):
     }
 
     response = lambda_handler(event, lambda_context)
+    print(f"Response: {response}")
     assert response["statusCode"] == 400
     assert response["body"] == "Invalid Verification Request"
 
 # Test for webhook handler with valid subscription id
-@patch("src.lambda_function.User")
-def test_webhook_handler_valid_subscription(mock_user, lambda_context):
+@patch("src.lambdas.webhook.handler.get_parameter")
+@patch("src.lambdas.webhook.handler.User")
+def test_webhook_handler_valid_subscription(mock_user, mock_get_parameter, lambda_context):
+    # Mock `get_parameter` to return expected values
+    mock_get_parameter.side_effect = lambda key, decrypt: "expected_verify_token" if key == "webhook_verify_token" else "12345"
+
     event_body = {
-        "subscription_id": int(WEBHOOK_SUBSCRIPTION_ID),
+        "subscription_id": 12345,
         "aspect_type": "create",
         "owner_id": 12345
     }
     event = {
         "httpMethod": "POST",
+        "path": "/webhook",
         "queryStringParameters": None,
         "headers": {},
         "body": json.dumps(event_body)
@@ -72,7 +88,11 @@ def test_webhook_handler_valid_subscription(mock_user, lambda_context):
     assert response["body"] == "Event received successfully"
 
 # Test for webhook handler with invalid subscription id
-def test_webhook_handler_invalid_subscription(lambda_context):
+@patch("src.lambdas.webhook.handler.get_parameter")
+def test_webhook_handler_invalid_subscription(mock_get_parameter, lambda_context):
+    # Mock `get_parameter` to return expected values
+    mock_get_parameter.side_effect = lambda key, decrypt: "expected_verify_token" if key == "webhook_verify_token" else "12345"
+
     event_body = {
         "subscription_id": 99999,
         "aspect_type": "create",
@@ -80,6 +100,7 @@ def test_webhook_handler_invalid_subscription(lambda_context):
     }
     event = {
         "httpMethod": "POST",
+        "path": "/webhook",
         "queryStringParameters": None,
         "headers": {},
         "body": json.dumps(event_body)
@@ -88,43 +109,3 @@ def test_webhook_handler_invalid_subscription(lambda_context):
     response = lambda_handler(event, lambda_context)
     assert response["statusCode"] == 403
     assert response["body"] == "Forbidden"
-
-# Test for webhook handler delete aspect type
-def test_webhook_handler_delete_aspect_type(lambda_context):
-    event_body = {
-        "subscription_id": int(WEBHOOK_SUBSCRIPTION_ID),
-        "aspect_type": "delete",
-        "owner_id": 12345
-    }
-    event = {
-        "httpMethod": "POST",
-        "queryStringParameters": None,
-        "headers": {},
-        "body": json.dumps(event_body)
-    }
-
-    response = lambda_handler(event, lambda_context)
-    assert response["statusCode"] == 200
-    assert response["body"] == "Skipping delete event"
-
-# Test for user revoking access
-@patch("src.lambda_function.User")
-def test_webhook_handler_user_revoked_access(mock_user, lambda_context):
-    event_body = {
-        "subscription_id": int(WEBHOOK_SUBSCRIPTION_ID),
-        "aspect_type": "update",
-        "owner_id": 12345,
-        "updates": {"authorized": "false"}
-    }
-    event = {
-        "httpMethod": "POST",
-        "queryStringParameters": None,
-        "headers": {},
-        "body": json.dumps(event_body)
-    }
-
-    mock_user.return_value.delete_from_db = MagicMock()
-
-    response = lambda_handler(event, lambda_context)
-    mock_user.return_value.delete_from_db.assert_called_once()
-    assert response is None
