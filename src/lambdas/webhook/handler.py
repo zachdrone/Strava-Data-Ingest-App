@@ -25,11 +25,7 @@ def webhook_verification():
         return {
             "hub.challenge": query_params.get('hub.challenge')
         }
-    return Response(
-        status_code=HTTPStatus.BAD_REQUEST.value,  # 400
-        content_type=content_types.APPLICATION_JSON,
-        body="Invalid Verification Request",
-    )
+
 
 @app.post("/webhook")
 def webhook_handler():

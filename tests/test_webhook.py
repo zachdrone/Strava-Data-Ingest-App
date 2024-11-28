@@ -60,6 +60,61 @@ def test_webhook_verification_failure(mock_get_parameter, lambda_context):
     assert response["statusCode"] == 400
     assert response["body"] == "Invalid Verification Request"
 
+
+@patch("src.lambdas.webhook.handler.get_parameter")
+def test_webhook_delete_event(mock_get_parameter, lambda_context):
+    # Mock `get_parameter` to return expected tokens
+    mock_get_parameter.side_effect = lambda key, decrypt: "expected_verify_token" if key == "webhook_verify_token" else "12345"
+    
+    event_body = json.dumps({
+        "subscription_id": 12345,
+        "aspect_type": "delete"
+    })
+    event = {
+        "httpMethod": "POST",
+        "path": "/webhook",
+        "queryStringParameters": {
+            "hub.verify_token": "expected_verify_token",
+            "hub.mode": "subscribe",
+            "hub.challenge": "challenge_code"
+        },
+        "headers": {},
+        "body": event_body
+    }
+
+    response = lambda_handler(event, lambda_context)
+    assert response["statusCode"] == 200
+    assert response["body"] == "Skipping delete event"
+
+@patch("src.lambdas.webhook.handler.get_parameter")
+def test_webhook_access_revoked(mock_get_parameter, lambda_context):
+    # Mock `get_parameter` to return expected tokens
+    mock_get_parameter.side_effect = lambda key, decrypt: "expected_verify_token" if key == "webhook_verify_token" else "12345"
+    
+    event_body = json.dumps({
+        "subscription_id": 12345,
+        "aspect_type": "update",
+        "updates": {
+            "authorized": "false"
+        },
+        "owner_id": 12345
+    })
+    event = {
+        "httpMethod": "POST",
+        "path": "/webhook",
+        "queryStringParameters": {
+            "hub.verify_token": "expected_verify_token",
+            "hub.mode": "subscribe",
+            "hub.challenge": "challenge_code"
+        },
+        "headers": {},
+        "body": event_body
+    }
+
+    response = lambda_handler(event, lambda_context)
+    assert response["statusCode"] == 200
+    assert response["body"] == "User deleted"
+
 # Test for webhook handler with valid subscription id
 @patch("src.lambdas.webhook.handler.get_parameter")
 @patch("src.lambdas.webhook.handler.User")
