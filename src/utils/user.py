@@ -48,19 +48,29 @@ class User():
 
     @property
     def access_token(self):
+        if self._access_token is None:
+            return None
         return self.cipher.decrypt(self._access_token).decode()
 
     @access_token.setter
     def access_token(self, value):
-        self._access_token = self.cipher.encrypt(value.encode())
+        if value is None:
+            self._access_token = None
+        else:
+            self._access_token = self.cipher.encrypt(value.encode())
 
     @property
     def refresh_token(self):
+        if self._refresh_token is None:
+            return None
         return self.cipher.decrypt(self._refresh_token).decode()
     
     @refresh_token.setter
     def refresh_token(self, value):
-        self._refresh_token = self.cipher.encrypt(value.encode())
+        if value is None:
+            self._refresh_token = None
+        else:
+            self._refresh_token = self.cipher.encrypt(value.encode())
     
     @property
     def encryption_key(self):
@@ -81,6 +91,7 @@ class User():
         
         try:
             response = self.table.get_item(Key={'id': self.id})
+            print("DynamoDB Response:", response)  # Debugging output
         except ClientError as e:
             print(f"Error fetching user data from DynamoDB: {e}")
             return False
@@ -122,9 +133,11 @@ class User():
     def delete_from_db(self):
         try:
             self.table.delete_item(Key={'id': self.id})
+            return True
         except ClientError as e:
             print(f"Error deleting user data to DynamoDB: {e}")
-            return False   
+            return False
+
 
     def is_token_expired(self):
         return self.token_expires_at < int(datetime.now().timestamp())

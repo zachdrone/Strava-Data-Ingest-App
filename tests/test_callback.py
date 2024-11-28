@@ -1,52 +1,86 @@
-# tests/test_callback_handler.py
-import pytest
 import json
+import pytest
 from unittest.mock import patch, MagicMock
-from aws_lambda_powertools import Logger, Tracer
 from src.lambdas.callback.handler import lambda_handler
+from src.utils.ssm import get_parameter
+from src.utils.user import User
 
 @pytest.fixture
-def mock_User():
-    with patch('src.lambdas.callback.handler.User') as mock_User:
-        yield mock_User
+def mock_context():
+    """Fixture to create a mock Lambda context."""
+    return MagicMock()
 
-@pytest.fixture
-def mock_get_parameter():
-    with patch('src.lambdas.callback.handler.get_parameter') as mock_get_parameter:
-        yield mock_get_parameter
+@patch("src.lambdas.callback.handler.get_parameter")
+@patch("src.lambdas.callback.handler.User")
+def test_lambda_handler_success(mock_user_class, mock_get_parameter, mock_context):
+    mock_get_parameter.return_value = "expected_state_value"
+    
+    mock_user = MagicMock()
+    mock_user_class.return_value = mock_user
 
-def test_lambda_handler(mock_User, mock_get_parameter):
-    # Mock dependencies
-    mock_User.return_value = MagicMock()
-    mock_get_parameter.return_value = 'expected_state'
+    event = {
+        "queryStringParameters": {
+            "state": "expected_state_value",
+            "scope": "read,write",
+            "code": "auth_code_value"
+        }
+    }
 
-    # Test lambda_handler function
-    event = {'queryStringParameters': {'state': 'expected_state'}}
-    context = MagicMock()
-    response = lambda_handler(event, context)
+    response = lambda_handler(event, mock_context)
 
-    # Assert response
-    assert response['statusCode'] == 200
-    assert response['body'] == 'Authorized!'
+    assert response["statusCode"] == 200
+    assert response["body"] == "Authorized!"
+    mock_get_parameter.assert_called_once_with('strava_callback_state', True)
+    mock_user.load_from_auth_code.assert_called_once_with(auth_code="auth_code_value")
+    assert mock_user.scope == "read,write"
 
-    # Assert mocks were called
-    mock_User.assert_called_once()
+@patch("src.lambdas.callback.handler.get_parameter")
+@patch("src.lambdas.callback.handler.User")
+def test_lambda_handler_invalid_state(mock_user_class, mock_get_parameter, mock_context):
+    mock_get_parameter.return_value = "expected_state_value"
+    
+    event = {
+        "queryStringParameters": {
+            "state": "invalid_state_value",
+            "scope": "read,write",
+            "code": "auth_code_value"
+        }
+    }
+
+    response = lambda_handler(event, mock_context)
+
+    assert response["statusCode"] == 400
+    assert json.loads(response["body"]) == {"message": "Invalid state parameter."}
+    mock_get_parameter.assert_called_once_with('strava_callback_state', True)
+    mock_user_class.assert_not_called()
+
+@patch("src.lambdas.callback.handler.get_parameter")
+def test_lambda_handler_missing_query_parameters(mock_get_parameter, mock_context):
+    mock_get_parameter.return_value = "expected_state_value"
+    
+    event = {
+        "queryStringParameters": None
+    }
+
+    response = lambda_handler(event, mock_context)
+
+    assert response["statusCode"] == 400
+    assert "message" in json.loads(response["body"]) 
     mock_get_parameter.assert_called_once_with('strava_callback_state', True)
 
-def test_lambda_handler_invalid_state(mock_User, mock_get_parameter):
-    # Mock dependencies
-    mock_User.return_value = MagicMock()
-    mock_get_parameter.return_value = 'expected_state'
+@patch("src.lambdas.callback.handler.get_parameter")
+def test_lambda_handler_missing_state_key(mock_get_parameter, mock_context):
+    mock_get_parameter.return_value = "expected_state_value"
+    
+    event = {
+        "queryStringParameters": {
+            "scope": "read,write",
+            "code": "auth_code_value"
+        }
+    }
 
-    # Test lambda_handler function with invalid state
-    event = {'queryStringParameters': {'state': 'invalid_state'}}
-    context = MagicMock()
-    response = lambda_handler(event, context)
+    response = lambda_handler(event, mock_context)
 
-    # Assert response
-    assert response['statusCode'] == 400
-    assert response['body'] == json.dumps({'message': 'Invalid state parameter.'})
-
-    # Assert mocks were called
-    mock_User.assert_not_called()
+    assert response["statusCode"] == 400
+    assert "message" in json.loads(response["body"]) 
     mock_get_parameter.assert_called_once_with('strava_callback_state', True)

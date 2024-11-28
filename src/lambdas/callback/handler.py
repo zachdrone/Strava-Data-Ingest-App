@@ -14,6 +14,16 @@ def lambda_handler(event, context):
     logger.info(event)
 
     expected_state = get_parameter('strava_callback_state', True)
+    if event.get('queryStringParameters') is None:
+        return {
+            "statusCode": 400,
+            "body": json.dumps({"message": "Missing query parameters."})
+        }
+    if event.get('queryStringParameters').get('state') is None:
+        return {
+            "statusCode": 400,
+            "body": json.dumps({"message": "Missing state parameter."})
+    }
     received_state = event['queryStringParameters']['state']
     if received_state != expected_state:
         return {
