@@ -28,7 +28,6 @@ def lambda_handler(event, context):
         )
         gpx_to_parquet(
             gpx_data,
-            activity["start_date"],
             bucket_name,
             f"activity_data/{user_id}/{activity_id}.parquet",
         )

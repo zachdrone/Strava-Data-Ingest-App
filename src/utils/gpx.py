@@ -1,12 +1,10 @@
 import gpxpy
 import pyarrow as pa
 import pyarrow.parquet as pq
-import boto3
 import pandas as pd
 
 from datetime import datetime, timedelta, timezone
-from xml.etree.ElementTree import Element, SubElement, tostring, ElementTree
-
+from xml.etree.ElementTree import Element, SubElement, tostring
 from src.utils.boto3_singleton import get_boto3_client
 
 
@@ -16,6 +14,7 @@ def create_gpx_from_streams(stream_data, start_date_utc):
     elapsed_time = stream_data.get("time", {}).get("data", [])
     distance = stream_data.get("distance", {}).get("data", [])
     cadence = stream_data.get("cadence", {}).get("data", [])
+    heartrate = stream_data.get("heartrate", {}).get("data", [])
 
     # activity_start_time_utc = activity.get("start_date")
 
@@ -42,33 +41,30 @@ def create_gpx_from_streams(stream_data, start_date_utc):
             ).isoformat()
             time_elem = SubElement(trkpt, "time")
             time_elem.text = timestamp
+
+        extensions = SubElement(trkpt, "extensions")
         if i < len(distance):
-            extensions = SubElement(trkpt, "extensions")
             distance_elem = SubElement(extensions, "distance")
             distance_elem.text = str(distance[i])
         if i < len(cadence):
-            extensions = SubElement(trkpt, "extensions")
             cadence_elem = SubElement(extensions, "cadence")
             cadence_elem.text = str(cadence[i])
+        if i < len(heartrate):
+            heartrate_elem = SubElement(extensions, "heartrate")
+            heartrate_elem.text = str(heartrate[i])
 
     gpx_data = tostring(gpx, encoding="utf-8", method="xml")
 
     return gpx_data
 
 
-def gpx_to_parquet(gpx_data, activity_start_time_utc, s3_bucket_name, s3_file_key):
+def gpx_to_parquet(gpx_data, s3_bucket_name, s3_file_key):
     # Parse the GPX data using gpxpy
     gpx = gpxpy.parse(gpx_data)
 
     # Prepare structured data for DataFrame
     data = []
 
-    # Parse the GPX track data and extract relevant fields
-    start_datetime = datetime.strptime(
-        activity_start_time_utc, "%Y-%m-%dT%H:%M:%SZ"
-    ).replace(tzinfo=timezone.utc)
-
-    # Extract data from the GPX track points
     for track in gpx.tracks:
         for segment in track.segments:
             for point in segment.points:
@@ -77,9 +73,10 @@ def gpx_to_parquet(gpx_data, activity_start_time_utc, s3_bucket_name, s3_file_ke
                     "longitude": point.longitude,
                     "altitude": point.elevation,
                     "timestamp": point.time.isoformat(),
-                    "distance": None,  # If you want distance, you can calculate it here
-                    "cadence": None,  # Add cadence if you want to include it
                 }
+                if point.extensions:
+                    for extension in point.extensions:
+                        entry[extension.tag] = float(extension.text)
                 data.append(entry)
 
     # Convert to Pandas DataFrame
