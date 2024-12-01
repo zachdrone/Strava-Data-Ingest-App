@@ -65,6 +65,33 @@ data "aws_iam_policy_document" "lambda_policy_doc" {
       "arn:aws:dynamodb:${var.aws_region}:${data.aws_caller_identity.current.account_id}:table/users"
     ]
   }
+
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "s3:PutObject",
+    ]
+
+    resources = [
+      "arn:aws:s3:::${aws_s3_bucket.strava_data_bucket.bucket}/*"
+    ]
+  }
+
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "sqs:ReceiveMessage",
+      "sqs:DeleteMessage",
+      "sqs:GetQueueAttributes",
+      "sqs:SendMessage"
+    ]
+
+    resources = [
+      aws_sqs_queue.strava_activity_queue.arn
+    ]
+  }
 }
 
 resource "aws_iam_policy" "lambda_policy" {
