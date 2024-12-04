@@ -15,7 +15,7 @@ class User:
         self.token_expires_at = None
         self._refresh_token = None
         self._scope = None
-        self.activity_replication = None
+        self.children = None
         self.table_name = table_name
 
         self.dynamodb = get_boto3_resource("dynamodb")
@@ -99,7 +99,7 @@ class User:
             self.token_expires_at = user_data.get("token_expires_at")
             self.refresh_token = user_data.get("refresh_token")
             self.scope = user_data.get("scope")
-            self.activity_replication = user_data.get("activity_replication")
+            self.children = user_data.get("children")
             return True
         else:
             print(f"No data found for user ID: {self.id}")
@@ -116,7 +116,7 @@ class User:
             "token_expires_at": self.token_expires_at,
             "refresh_token": self.refresh_token,
             "scope": self.scope,
-            "activity_replication": self.activity_replication,
+            "children": self.children,
         }
 
         try:
@@ -151,4 +151,3 @@ class User:
         self.strava.exchange_auth_code(auth_code)
 
         self.save_to_db()
-
