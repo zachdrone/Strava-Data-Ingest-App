@@ -63,4 +63,14 @@ resource "aws_lambda_function" "process_strava_data" {
 
   memory_size = 512
   timeout     = 30
+
+  dead_letter_config {
+    target_arn = aws_sqs_queue.process_strava_data_dql.arn
+  }
+}
+
+resource "aws_lambda_function_event_invoke_config" "process_strava_data_config" {
+  function_name                = aws_lambda_function.process_strava_data.function_name
+  maximum_event_age_in_seconds = 60
+  maximum_retry_attempts       = 0
 }

@@ -70,6 +70,8 @@ class Strava:
         self.user.token_expires_at = response["expires_at"]
         self.user.id = response["athlete"]["id"]
         self.user.username = response["athlete"]["username"]
+        self.user.firstname = response["athlete"]["firstname"]
+        self.user.lastname = response["athlete"]["lastname"]
 
     def get_activity_streams(self, id):
         headers = {"Authorization": f"Bearer {self.user.access_token}"}
