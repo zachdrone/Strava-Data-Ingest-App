@@ -11,11 +11,14 @@ class User:
     def __init__(self, id=None, table_name="users"):
         self.id = id
         self.username = None
+        self.firstname = None
+        self.lastname = None
         self._access_token = None
         self.token_expires_at = None
         self._refresh_token = None
         self._scope = None
-        self.children = None
+        self.children = []
+        self.parents = []
         self.table_name = table_name
 
         self.dynamodb = get_boto3_resource("dynamodb")
@@ -95,11 +98,14 @@ class User:
         if "Item" in response:
             user_data = response["Item"]
             self.username = user_data.get("username")
+            self.firstname = user_data.get("firstname")
+            self.lastname = user_data.get("lastname")
             self.access_token = user_data.get("access_token")
             self.token_expires_at = user_data.get("token_expires_at")
             self.refresh_token = user_data.get("refresh_token")
             self.scope = user_data.get("scope")
             self.children = user_data.get("children")
+            self.parents = user_data.get("parents")
             return True
         else:
             print(f"No data found for user ID: {self.id}")
@@ -112,11 +118,14 @@ class User:
         user_data = {
             "id": self.id,
             "username": self.username,
+            "firstname": self.firstname,
+            "lastname": self.lastname,
             "access_token": self.access_token,
             "token_expires_at": self.token_expires_at,
             "refresh_token": self.refresh_token,
             "scope": self.scope,
             "children": self.children,
+            "parents": self.parents,
         }
 
         try:

@@ -89,7 +89,8 @@ data "aws_iam_policy_document" "lambda_policy_doc" {
     ]
 
     resources = [
-      aws_sqs_queue.strava_activity_queue.arn
+      aws_sqs_queue.strava_activity_queue.arn,
+      aws_sqs_queue.process_strava_data_dql.arn
     ]
   }
 }
