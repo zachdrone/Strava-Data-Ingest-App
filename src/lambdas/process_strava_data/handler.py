@@ -43,7 +43,9 @@ def lambda_handler(event, context):
         for child_id in user.children:
             child = User(child_id)
             child.load_from_db()
-            if user.id in child.parents:
+            if (child.firstname.lower() in activity.get("name").lower()) and (
+                user.id in child.parents
+            ):
                 child.refresh_tokens()
                 sport_name = convert_camel_to_sentence(activity.get("sport_type"))
                 logger.info(
