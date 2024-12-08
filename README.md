@@ -23,6 +23,8 @@ The app facilitates advanced analytics by:
 ### 3. Reproducibility
 The entire infrastructure is defined using **Terraform**, making it easily reproducible and manageable across environments.
 
+## Architecture
+
 ![Architecture Diagram](exercise-data-app-architecture.png)
 
 ## Strava API Interaction Workflow
