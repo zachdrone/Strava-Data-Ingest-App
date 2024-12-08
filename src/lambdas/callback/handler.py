@@ -35,4 +35,3 @@ def lambda_handler(event, context):
     user.load_from_auth_code(auth_code=event["queryStringParameters"]["code"])
 
     return {"statusCode": 200, "body": "Authorized!"}
-
