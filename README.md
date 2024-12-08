@@ -1,4 +1,4 @@
-# Exercise API Project
+# Strava Data Ingest App
 
 This application sets up infrastructure for downloading and processing data from the Strava API, enabling unique use cases such as activity duplication and data ingestion for analytics.
 
