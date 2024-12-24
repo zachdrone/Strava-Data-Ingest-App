@@ -1,9 +1,11 @@
 import json
 import os
 import re
-from src.utils.user import User
+
 from aws_lambda_powertools import Logger
-from src.utils.gpx import create_gpx_from_streams, gpx_to_parquet
+
+from src.utils.gpx import create_gpx_from_streams
+from src.utils.user import User
 
 logger = Logger(service="process-strava-data")
 bucket_name = os.environ["S3_BUCKET"]
@@ -51,10 +53,11 @@ def lambda_handler(event, context):
                 logger.info(
                     f"uploading activity to user {child.id} {child.firstname} {child.lastname}"
                 )
-                child.strava.upload_activity_file(
+                resp = child.strava.upload_activity_file(
                     gpx_data,
                     "gpx",
                     f"{sport_name} with {user.firstname}!",
                 )
+                print(resp)
 
     return {"statusCode": 200, "body": json.dumps("Success")}

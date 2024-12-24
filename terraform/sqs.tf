@@ -18,5 +18,9 @@ resource "aws_lambda_event_source_mapping" "sqs_trigger" {
 }
 
 resource "aws_sqs_queue" "process_strava_data_dql" {
-  name = "proccess-strava-data-dlq"
+  name = "process-strava-data-dlq"
+}
+
+resource "aws_sqs_queue" "create_gpx_data_dlq" {
+  name = "create-gpx-data-dlq"
 }
