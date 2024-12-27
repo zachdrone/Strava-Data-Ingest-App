@@ -7,8 +7,8 @@ from aws_lambda_powertools import Logger
 from src.utils.gpx import get_gpx_from_s3
 from src.utils.user import User
 
-logger = Logger(service="process-strava-data")
-gpx_bucket_name = os.environ["GPX_S3_BUCKET"]
+logger = Logger(service="duplicate-activity")
+gpx_bucket_name = os.environ["GPX_DATA_BUCKET"]
 
 
 def convert_camel_to_sentence(text):
@@ -19,7 +19,7 @@ def convert_camel_to_sentence(text):
 def lambda_handler(event, context):
     logger.info(event)
     child_user_id = event["child_user_id"]
-    s3_key = event["s3_key"]
+    s3_key = event["gpx_data_s3_key"]
     activity = event["activity"]
 
     child = User(child_user_id)

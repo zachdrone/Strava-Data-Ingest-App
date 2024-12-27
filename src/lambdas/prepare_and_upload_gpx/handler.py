@@ -30,5 +30,5 @@ def lambda_handler(event, context):
 
     return {
         "activity": activity,
-        "s3_key": s3_file_key,
+        "gpx_data_s3_key": s3_file_key,
     }

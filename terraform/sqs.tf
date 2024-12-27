@@ -38,6 +38,6 @@ resource "aws_sqs_queue" "process_strava_data_dql" {
   name = "process-strava-data-dlq"
 }
 
-resource "aws_sqs_queue" "create_gpx_data_dlq" {
-  name = "create-gpx-data-dlq"
+resource "aws_sqs_queue" "prepare_and_upload_gpx_dlq" {
+  name = "prepare-and-upload-gpx-dlq"
 }

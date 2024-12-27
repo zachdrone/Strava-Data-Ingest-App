@@ -45,7 +45,6 @@ data "aws_iam_policy_document" "lambda_policy_doc" {
       "arn:aws:ssm:${var.aws_region}:${data.aws_caller_identity.current.account_id}:parameter/strava_client_id",
       "arn:aws:ssm:${var.aws_region}:${data.aws_caller_identity.current.account_id}:parameter/strava_client_secret",
       "arn:aws:ssm:${var.aws_region}:${data.aws_caller_identity.current.account_id}:parameter/webhook_subscription_id",
-      "arn:aws:ssm:${var.aws_region}:${data.aws_caller_identity.current.account_id}:parameter/webhook_verify_token",
     ]
   }
 
@@ -74,7 +73,8 @@ data "aws_iam_policy_document" "lambda_policy_doc" {
     ]
 
     resources = [
-      "arn:aws:s3:::${aws_s3_bucket.strava_data_bucket.bucket}/*"
+      "arn:aws:s3:::${aws_s3_bucket.strava_data_bucket.bucket}/*",
+      "arn:aws:s3:::${aws_s3_bucket.strava_gpx_data_bucket}/*"
     ]
   }
 

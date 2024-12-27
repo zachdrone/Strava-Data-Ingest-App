@@ -75,17 +75,16 @@ resource "aws_lambda_function_event_invoke_config" "process_strava_data_config" 
   maximum_retry_attempts       = 0
 }
 
-resource "aws_lambda_function" "create_gpx_data" {
-  function_name = "create_gpx_data"
+resource "aws_lambda_function" "prepare_and_upload_gpx" {
+  function_name = "prepare_and_upload_gpx"
   package_type  = "Image"
   image_uri     = "${aws_ecr_repository.my_lambda_repo.repository_url}:latest"
   role          = aws_iam_role.lambda_execution_role.arn
 
   environment {
     variables = {
-      ACTIVITY_QUEUE_URL = aws_sqs_queue.strava_activity_queue.url
-      S3_BUCKET          = aws_s3_bucket.strava_gpx_data_bucket.bucket
-      handler            = "src.lambdas.create_gpx_data.handler.lambda_handler"
+      GPX_DATA_BUCKET = aws_s3_bucket.strava_gpx_data_bucket.bucket
+      handler         = "src.lambdas.create_gpx_data.handler.lambda_handler"
     }
   }
 
@@ -96,10 +95,3 @@ resource "aws_lambda_function" "create_gpx_data" {
     target_arn = aws_sqs_queue.create_gpx_data_dlq.arn
   }
 }
-
-resource "aws_lambda_function_event_invoke_config" "create_gpx_data_config" {
-  function_name                = aws_lambda_function.create_gpx_data.function_name
-  maximum_event_age_in_seconds = 60
-  maximum_retry_attempts       = 0
-}
-

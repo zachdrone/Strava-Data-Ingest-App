@@ -2,7 +2,7 @@ from aws_lambda_powertools import Logger
 
 from src.utils.user import User
 
-logger = Logger(service="validate-parent-child-relationship")
+logger = Logger(service="validate-child")
 
 
 def lambda_handler(event, context):

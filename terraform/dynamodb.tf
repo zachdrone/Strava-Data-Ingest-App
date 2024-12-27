@@ -8,30 +8,30 @@ resource "aws_dynamodb_table" "users" {
   }
 }
 
-#resource "aws_dynamodb_table" "activities" {
-#name         = "users"
-#billing_mode = "PAY_PER_REQUEST"
-#hash_key     = "activity_id"
+resource "aws_dynamodb_table" "activities" {
+  name         = "users"
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "activity_id"
 
-#attribute {
-#name = "activity_id"
-#type = "N"
-#}
+  attribute {
+  name = "activity_id"
+  type = "N"
+  }
 
-#attribute {
-#name = "parent_activity_id"
-#type = "N"
-#}
+  attribute {
+  name = "parent_activity_id"
+  type = "N"
+  }
 
-#attribute {
-#name = "user_id"
-#type = "N"
-#}
+  attribute {
+  name = "user_id"
+  type = "N"
+  }
 
-#
-#global_secondary_index {
-#name            = "ParentActivityIdIndex"
-#hash_key        = "parent_activity_id"
-#projection_type = "ALL"
-#}
-#}
+
+  global_secondary_index {
+  name            = "ParentActivityIdIndex"
+  hash_key        = "parent_activity_id"
+  projection_type = "ALL"
+  }
+}
