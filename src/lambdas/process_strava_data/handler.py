@@ -51,10 +51,11 @@ def lambda_handler(event, context):
                 logger.info(
                     f"uploading activity to user {child.id} {child.firstname} {child.lastname}"
                 )
-                child.strava.upload_activity_file(
+                resp = child.strava.upload_activity_file(
                     gpx_data,
                     "gpx",
                     f"{sport_name} with {user.firstname}!",
                 )
+                print(f"upload resp: {resp}")
 
     return {"statusCode": 200, "body": json.dumps("Success")}
