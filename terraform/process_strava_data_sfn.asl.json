@@ -1,0 +1,99 @@
+{
+  "StartAt": "prepare_and_upload_gpx",
+  "States": {
+    "prepare_and_upload_gpx": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:region:account_id:function:prepare_and_upload_gpx",
+      "Next": "store_activity_in_dynamo"
+    },
+    "store_activity_in_dynamo": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:region:account_id:function:store_activity_in_dynamo",
+      "Next": "check_child_users"
+    },
+    "check_child_users": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:region:account_id:function:check_child_users",
+      "Next": "get_activity_title"
+    },
+    "validate_for_each_child": {
+      "Type": "Map",
+      "ItemsPath": "$.child_users",
+      "Iterator": {
+        "StartAt": "validate_child",
+        "States": {
+          "validate_child": {
+            "Type": "Task",
+            "Resource": "arn:aws:lambda:region:account_id:function:validate_child",
+            "Next": "validation_choice"
+          },
+          "validation_choice": {
+            "Type": "Choice",
+            "Choices": [
+              {
+                "And": [
+                  {
+                    "Variable": "$.parent_valid",
+                    "BooleanEquals": true
+                  },
+                  {
+                    "Variable": "$.title_valid",
+                    "BooleanEquals": true
+                  }
+                ],
+                "Next": "duplicate_activity"
+              }
+            ],
+            "Default": "skip_child"
+          },
+          "duplicate_activity": {
+            "Type": "Task",
+            "Resource": "arn:aws:lambda:region:account_id:function:duplicate_activity",
+            "Next": "wait_for_duplication"
+          },
+          "wait_for_duplication": {
+            "Type": "Wait",
+            "Seconds": 30,
+            "Next": "check_duplication_status"
+          },
+          "check_duplication_status": {
+            "Type": "Task",
+            "Resource": "arn:aws:lambda:region:account_id:function:check_duplication_status",
+            "Next": "duplication_complete_choice"
+          },
+          "duplication_complete_choice": {
+            "Type": "Choice",
+            "Choices": [
+              {
+                "Variable": "$.status",
+                "StringEquals": "COMPLETED",
+                "Next": "store_child_activity"
+              }
+            ],
+            "Default": "wait_for_duplication"
+          },
+          "store_child_activity": {
+            "Type": "Task",
+            "Resource": "arn:aws:lambda:region:account_id:function:store_activity_in_dynamo",
+            "Next": "convert_to_parquet"
+          },
+          "skip_child": {
+            "Type": "Succeed"
+          }
+        }
+      },
+      "End": true
+    },
+    "convert_to_parquet": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:region:account_id:function:convert_to_parquet",
+      "Next": "upload_parquet_to_s3"
+    },
+    "upload_parquet_to_s3": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:region:account_id:function:upload_parquet_to_s3",
+      "End": true
+    }
+  }
+}
+

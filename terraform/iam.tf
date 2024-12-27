@@ -195,3 +195,106 @@ resource "aws_iam_policy_attachment" "glue_policy_attachment" {
   policy_arn = resource.aws_iam_policy.glue_policy.arn
   roles      = [aws_iam_role.glue_execution_role.name]
 }
+
+resource "aws_iam_user" "github_actions_user" {
+  name = "github-actions-user"
+}
+
+data "aws_iam_policy_document" "github_actions_policy_doc" {
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "ecr:GetAuthorizationToken",
+      "ecr:BatchCheckLayerAvailability",
+      "ecr:PutImage",
+      "ecr:InitiateLayerUpload",
+      "ecr:UploadLayerPart",
+      "ecr:CompleteLayerUpload"
+    ]
+
+    resources = [
+      aws_ecr_repository.my_lambda_repo.arn
+    ]
+  }
+}
+
+resource "aws_iam_policy" "github_actions_policy" {
+  name   = "github-actions-policy"
+  path   = "/"
+  policy = data.aws_iam_policy_document.github_actions_policy_doc.json
+}
+
+resource "aws_iam_policy_attachment" "github_actions_policy_attachment" {
+  name       = "github-actions-policy-attachment"
+  policy_arn = resource.aws_iam_policy.github_actions_policy.arn
+  users      = [aws_iam_user.github_actions_user.arn]
+}
+
+resource "aws_iam_role" "eventbridge_sfn_role" {
+  name = "eventbridge-sfn-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [{
+      Effect = "Allow",
+      Principal = {
+        Service = "events.amazonaws.com"
+      },
+      Action = "sts:AssumeRole"
+    }]
+  })
+}
+
+resource "aws_iam_policy" "eventbridge_sfn_policy" {
+  name = "eventbridge-sfn-policy"
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [{
+      Effect = "Allow",
+      Action = [
+        "states:StartExecution"
+      ],
+      Resource = aws_sfn_state_machine.process_strava_data.arn
+    }]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "eventbridge_sfn_attach" {
+  role       = aws_iam_role.eventbridge_sfn_role.name
+  policy_arn = aws_iam_policy.eventbridge_sfn_policy.arn
+}
+
+resource "aws_iam_role" "step_function_role" {
+  name = "stepFunctionRole"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [{
+      Action = "sts:AssumeRole",
+      Effect = "Allow",
+      Principal = {
+        Service = "states.amazonaws.com"
+      }
+    }]
+  })
+}
+
+resource "aws_iam_policy" "step_function_policy" {
+  name        = "stepFunctionPolicy"
+  description = "Policy to allow execution of Lambda"
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [{
+      Action   = "lambda:InvokeFunction",
+      Effect   = "Allow",
+      Resource = "*"
+    }]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "step_function_policy_attach" {
+  role       = aws_iam_role.step_function_role.name
+  policy_arn = aws_iam_policy.step_function_policy.arn
+}
