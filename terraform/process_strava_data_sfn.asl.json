@@ -17,7 +17,7 @@
     "check_child_users": {
       "Type": "Task",
       "Resource": "arn:aws:lambda:region:account_id:function:check_child_users",
-      "Next": "get_activity_title"
+      "Next": "validate_for_each_child"
     },
     "validate_for_each_child": {
       "Type": "Map",
@@ -70,16 +70,16 @@
               {
                 "Variable": "$.status",
                 "StringEquals": "COMPLETED",
-                "Next": "store_child_activity"
+                "Next": "store_child_activity_in_dynamo"
               }
             ],
-            "Default": "wait_for_duplication"
+            "Default": "skip_child"
           },
-          "store_activity_in_dynamo": {
+          "store_child_activity_in_dynamo": {
             "Type": "Task",
             "Resource": "arn:aws:lambda:region:account_id:function:store_activity_in_dynamo",
             "Parameters": {
-              "Context": "parent"
+              "Context": "child"
             },
             "End": true
           },

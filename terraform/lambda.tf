@@ -90,10 +90,6 @@ resource "aws_lambda_function" "prepare_and_upload_gpx" {
 
   memory_size = 512
   timeout     = 30
-
-  dead_letter_config {
-    target_arn = aws_sqs_queue.create_gpx_data_dlq.arn
-  }
 }
 
 resource "aws_lambda_function" "store_activity_in_dynamo" {

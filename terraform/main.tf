@@ -1,4 +1,11 @@
 terraform {
+  backend "s3" {
+    bucket         = "my-terraform-state-bucket"
+    key            = "terraform.tfstate"
+    region         = "us-east-1"
+    dynamodb_table = "terraform-locks"
+    encrypt        = true
+  }
   required_providers {
     aws = {
       source  = "hashicorp/aws"
@@ -8,8 +15,7 @@ terraform {
 }
 
 provider "aws" {
-  region  = "us-east-1"
-  profile = "strava"
+  region = "us-east-1"
 }
 
 data "aws_caller_identity" "current" {}

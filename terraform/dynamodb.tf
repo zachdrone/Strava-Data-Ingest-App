@@ -14,24 +14,18 @@ resource "aws_dynamodb_table" "activities" {
   hash_key     = "activity_id"
 
   attribute {
-  name = "activity_id"
-  type = "N"
+    name = "activity_id"
+    type = "N"
   }
 
   attribute {
-  name = "parent_activity_id"
-  type = "N"
+    name = "parent_activity_id"
+    type = "N"
   }
-
-  attribute {
-  name = "user_id"
-  type = "N"
-  }
-
 
   global_secondary_index {
-  name            = "ParentActivityIdIndex"
-  hash_key        = "parent_activity_id"
-  projection_type = "ALL"
+    name            = "ParentActivityIdIndex"
+    hash_key        = "parent_activity_id"
+    projection_type = "ALL"
   }
 }
