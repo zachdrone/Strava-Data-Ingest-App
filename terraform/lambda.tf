@@ -84,7 +84,7 @@ resource "aws_lambda_function" "prepare_and_upload_gpx" {
   environment {
     variables = {
       GPX_DATA_BUCKET = aws_s3_bucket.strava_gpx_data_bucket.bucket
-      handler         = "src.lambdas.create_gpx_data.handler.lambda_handler"
+      handler         = "src.lambdas.prepare_and_upload_gpx.handler.lambda_handler"
     }
   }
 
@@ -94,4 +94,85 @@ resource "aws_lambda_function" "prepare_and_upload_gpx" {
   dead_letter_config {
     target_arn = aws_sqs_queue.create_gpx_data_dlq.arn
   }
+}
+
+resource "aws_lambda_function" "store_activity_in_dynamo" {
+  function_name = "store-activity-in-dynamo"
+  package_type  = "Image"
+  image_uri     = "${aws_ecr_repository.my_lambda_repo.repository_url}:latest"
+  role          = aws_iam_role.lambda_execution_role.arn
+
+  environment {
+    variables = {
+      handler = "src.lambdas.store_activity_in_dynamo.handler.lambda_handler"
+    }
+  }
+
+  memory_size = 512
+  timeout     = 30
+}
+
+resource "aws_lambda_function" "check_child_users" {
+  function_name = "check-child-users"
+  package_type  = "Image"
+  image_uri     = "${aws_ecr_repository.my_lambda_repo.repository_url}:latest"
+  role          = aws_iam_role.lambda_execution_role.arn
+
+  environment {
+    variables = {
+      handler = "src.lambdas.check_child_users.handler.lambda_handler"
+    }
+  }
+
+  memory_size = 512
+  timeout     = 30
+}
+
+resource "aws_lambda_function" "validate_child" {
+  function_name = "validate-child"
+  package_type  = "Image"
+  image_uri     = "${aws_ecr_repository.my_lambda_repo.repository_url}:latest"
+  role          = aws_iam_role.lambda_execution_role.arn
+
+  environment {
+    variables = {
+      handler = "src.lambdas.validate_child.handler.lambda_handler"
+    }
+  }
+
+  memory_size = 512
+  timeout     = 30
+}
+
+resource "aws_lambda_function" "duplicate_activity" {
+  function_name = "duplicate-activity"
+  package_type  = "Image"
+  image_uri     = "${aws_ecr_repository.my_lambda_repo.repository_url}:latest"
+  role          = aws_iam_role.lambda_execution_role.arn
+
+  environment {
+    variables = {
+      GPX_DATA_BUCKET = aws_s3_bucket.strava_gpx_data_bucket.bucket
+      handler         = "src.lambdas.duplicate_activity.handler.lambda_handler"
+    }
+  }
+
+  memory_size = 512
+  timeout     = 30
+}
+
+resource "aws_lambda_function" "check_duplication_status" {
+  function_name = "check-duplication-status"
+  package_type  = "Image"
+  image_uri     = "${aws_ecr_repository.my_lambda_repo.repository_url}:latest"
+  role          = aws_iam_role.lambda_execution_role.arn
+
+  environment {
+    variables = {
+      handler = "src.lambdas.check_duplication_status.handler.lambda_handler"
+    }
+  }
+
+  memory_size = 512
+  timeout     = 30
 }

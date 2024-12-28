@@ -18,7 +18,6 @@ def lambda_handler(event, context):
     title_valid = child.firstname.lower() in activity["name"].lower()
 
     return {
-        "child_user_id": child.id,
         "parent_valid": parent_valid,
         "title_valid": title_valid,
     }

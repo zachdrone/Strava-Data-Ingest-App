@@ -1,4 +1,3 @@
-import json
 import os
 import re
 
@@ -37,6 +36,6 @@ def lambda_handler(event, context):
         "gpx",
         f"{sport_name} with {child.firstname}!",
     )
-    print(resp)
+    logger.info(f"upload response: {resp}")
 
-    return {"statusCode": 200, "body": json.dumps("Success")}
+    return {"upload_id": resp["id"], "status": resp["status"]}

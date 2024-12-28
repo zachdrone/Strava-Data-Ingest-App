@@ -9,6 +9,9 @@
     "store_activity_in_dynamo": {
       "Type": "Task",
       "Resource": "arn:aws:lambda:region:account_id:function:store_activity_in_dynamo",
+      "Parameters": {
+        "Context": "parent"
+      },
       "Next": "check_child_users"
     },
     "check_child_users": {
@@ -72,10 +75,13 @@
             ],
             "Default": "wait_for_duplication"
           },
-          "store_child_activity": {
+          "store_activity_in_dynamo": {
             "Type": "Task",
             "Resource": "arn:aws:lambda:region:account_id:function:store_activity_in_dynamo",
-            "Next": "convert_to_parquet"
+            "Parameters": {
+              "Context": "parent"
+            },
+            "End": true
           },
           "skip_child": {
             "Type": "Succeed"
@@ -83,17 +89,6 @@
         }
       },
       "End": true
-    },
-    "convert_to_parquet": {
-      "Type": "Task",
-      "Resource": "arn:aws:lambda:region:account_id:function:convert_to_parquet",
-      "Next": "upload_parquet_to_s3"
-    },
-    "upload_parquet_to_s3": {
-      "Type": "Task",
-      "Resource": "arn:aws:lambda:region:account_id:function:upload_parquet_to_s3",
-      "End": true
     }
   }
 }
-
