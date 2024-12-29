@@ -1,17 +1,9 @@
-import os
-import re
-
 from aws_lambda_powertools import Logger
 
 from src.utils.user import User
 
-logger = Logger(service="process-strava-data")
-bucket_name = os.environ["S3_BUCKET"]
 
-
-def convert_camel_to_sentence(text):
-    result = re.sub(r"(?<!^)(?=[A-Z])", " ", text)
-    return result[0].upper() + result[1:].lower()
+logger = Logger(service="check-child-users")
 
 
 def lambda_handler(event, context):

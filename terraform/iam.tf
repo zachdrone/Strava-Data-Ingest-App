@@ -196,41 +196,6 @@ resource "aws_iam_policy_attachment" "glue_policy_attachment" {
   roles      = [aws_iam_role.glue_execution_role.name]
 }
 
-resource "aws_iam_user" "github_actions_user" {
-  name = "github-actions-user"
-}
-
-data "aws_iam_policy_document" "github_actions_policy_doc" {
-  statement {
-    effect = "Allow"
-
-    actions = [
-      "ecr:GetAuthorizationToken",
-      "ecr:BatchCheckLayerAvailability",
-      "ecr:PutImage",
-      "ecr:InitiateLayerUpload",
-      "ecr:UploadLayerPart",
-      "ecr:CompleteLayerUpload"
-    ]
-
-    resources = [
-      aws_ecr_repository.my_lambda_repo.arn
-    ]
-  }
-}
-
-resource "aws_iam_policy" "github_actions_policy" {
-  name   = "github-actions-policy"
-  path   = "/"
-  policy = data.aws_iam_policy_document.github_actions_policy_doc.json
-}
-
-resource "aws_iam_policy_attachment" "github_actions_policy_attachment" {
-  name       = "github-actions-policy-attachment"
-  policy_arn = resource.aws_iam_policy.github_actions_policy.arn
-  users      = [aws_iam_user.github_actions_user.arn]
-}
-
 resource "aws_iam_role" "eventbridge_sfn_role" {
   name = "eventbridge-sfn-role"
 

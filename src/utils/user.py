@@ -89,7 +89,7 @@ class User:
             raise ValueError("User ID must be set to load data from DB.")
 
         try:
-            response = self.users_table.table.get_item(Key={"id": self.id})
+            response = self.users_table.get_item(Key={"id": self.id})
             print("DynamoDB Response:", response)  # Debugging output
         except ClientError as e:
             print(f"Error fetching user data from DynamoDB: {e}")

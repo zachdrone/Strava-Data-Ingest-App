@@ -9,7 +9,7 @@ resource "aws_dynamodb_table" "users" {
 }
 
 resource "aws_dynamodb_table" "activities" {
-  name         = "users"
+  name         = "activities"
   billing_mode = "PAY_PER_REQUEST"
   hash_key     = "activity_id"
 
