@@ -93,7 +93,7 @@ resource "aws_lambda_function" "prepare_and_upload_gpx" {
 }
 
 resource "aws_lambda_function" "store_activity_in_dynamo" {
-  function_name = "store-activity-in-dynamo"
+  function_name = "store_activity_in_dynamo"
   package_type  = "Image"
   image_uri     = "${aws_ecr_repository.my_lambda_repo.repository_url}:latest"
   role          = aws_iam_role.lambda_execution_role.arn
@@ -109,7 +109,7 @@ resource "aws_lambda_function" "store_activity_in_dynamo" {
 }
 
 resource "aws_lambda_function" "check_child_users" {
-  function_name = "check-child-users"
+  function_name = "check_child_users"
   package_type  = "Image"
   image_uri     = "${aws_ecr_repository.my_lambda_repo.repository_url}:latest"
   role          = aws_iam_role.lambda_execution_role.arn
@@ -125,7 +125,7 @@ resource "aws_lambda_function" "check_child_users" {
 }
 
 resource "aws_lambda_function" "validate_child" {
-  function_name = "validate-child"
+  function_name = "validate_child"
   package_type  = "Image"
   image_uri     = "${aws_ecr_repository.my_lambda_repo.repository_url}:latest"
   role          = aws_iam_role.lambda_execution_role.arn
@@ -141,7 +141,7 @@ resource "aws_lambda_function" "validate_child" {
 }
 
 resource "aws_lambda_function" "duplicate_activity" {
-  function_name = "duplicate-activity"
+  function_name = "duplicate_activity"
   package_type  = "Image"
   image_uri     = "${aws_ecr_repository.my_lambda_repo.repository_url}:latest"
   role          = aws_iam_role.lambda_execution_role.arn
@@ -158,7 +158,7 @@ resource "aws_lambda_function" "duplicate_activity" {
 }
 
 resource "aws_lambda_function" "check_duplication_status" {
-  function_name = "check-duplication-status"
+  function_name = "check_duplication_status"
   package_type  = "Image"
   image_uri     = "${aws_ecr_repository.my_lambda_repo.repository_url}:latest"
   role          = aws_iam_role.lambda_execution_role.arn

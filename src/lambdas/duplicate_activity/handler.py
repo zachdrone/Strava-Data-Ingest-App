@@ -17,17 +17,16 @@ def convert_camel_to_sentence(text):
 
 def lambda_handler(event, context):
     logger.info(event)
-    child_user_id = event["child_user_id"]
+    child_id = event["child_id"]
     s3_key = event["gpx_data_s3_key"]
-    activity = event["activity"]
+    sport_name = convert_camel_to_sentence(event["activity_sport_type"])
 
-    child = User(child_user_id)
+    child = User(child_id)
     child.load_from_db()
     child.refresh_tokens()
 
     gpx_data = get_gpx_from_s3(gpx_bucket_name, s3_key)
 
-    sport_name = convert_camel_to_sentence(activity.get("sport_type"))
     logger.info(
         f"uploading activity to child user {child.id} {child.firstname} {child.lastname}"
     )
@@ -38,4 +37,4 @@ def lambda_handler(event, context):
     )
     logger.info(f"upload response: {resp}")
 
-    return {"upload_id": resp["id"], "status": resp["status"]}
+    return {"upload_id": resp["id"]}

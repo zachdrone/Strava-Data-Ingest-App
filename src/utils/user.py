@@ -111,19 +111,14 @@ class User:
             print(f"No data found for user ID: {self.id}")
             return False
 
-    def save_activity_to_db(self, activity_id, parent_activity_id=None):
+    def save_activity_to_db(self, activity_id, parent_id=None, parent_activity_id=None):
         user_data = {
             "activity_id": activity_id,
-            "parent_activity_id": parent_activity_id,
             "user_id": self.id,
+            "parent_activity_id": parent_activity_id,
+            "parent_id": parent_id,
         }
-
-        try:
-            self.activities_table.put_item(Item=user_data)
-            return True
-        except ClientError as e:
-            print(f"Error saving activity data to DynamoDB: {e}")
-            return False
+        self.activities_table.put_item(Item=user_data)
 
     def save_to_db(self):
         if not self.id:

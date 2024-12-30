@@ -12,9 +12,15 @@ resource "aws_dynamodb_table" "activities" {
   name         = "activities"
   billing_mode = "PAY_PER_REQUEST"
   hash_key     = "activity_id"
+  range_key    = "user_id"
 
   attribute {
     name = "activity_id"
+    type = "N"
+  }
+
+  attribute {
+    name = "user_id"
     type = "N"
   }
 

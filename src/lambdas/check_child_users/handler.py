@@ -12,4 +12,4 @@ def lambda_handler(event, context):
     user = User(user_id)
     user.load_from_db()
 
-    return {"child_users": [{"child_user_id": id} for id in user.children]}
+    return {"child_users": [{"child_id": id} for id in user.children]}

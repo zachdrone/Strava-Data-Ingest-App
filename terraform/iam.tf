@@ -61,7 +61,8 @@ data "aws_iam_policy_document" "lambda_policy_doc" {
     ]
 
     resources = [
-      "arn:aws:dynamodb:${var.aws_region}:${data.aws_caller_identity.current.account_id}:table/users"
+      "arn:aws:dynamodb:${var.aws_region}:${data.aws_caller_identity.current.account_id}:table/users",
+      "arn:aws:dynamodb:${var.aws_region}:${data.aws_caller_identity.current.account_id}:table/activities"
     ]
   }
 
@@ -70,6 +71,7 @@ data "aws_iam_policy_document" "lambda_policy_doc" {
 
     actions = [
       "s3:PutObject",
+      "s3:GetObject"
     ]
 
     resources = [
