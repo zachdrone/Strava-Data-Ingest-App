@@ -16,6 +16,9 @@ logger = Logger(service="strava-webhook")
 app = APIGatewayRestResolver(cors=CORSConfig(allow_origin="*"))
 
 activity_queue_url = os.environ["ACTIVITY_QUEUE_URL"]
+delete_activity_queue_url = os.environ["DELETE_ACTIVITY_QUEUE_URL"]
+
+sqs_client = get_boto3_client("sqs")
 
 
 @app.get("/webhook")
@@ -65,19 +68,23 @@ def webhook_handler():
 
     if data["object_type"] == "activity":
         if data["aspect_type"] == "delete":
-            logger.info("skipping delete event")
-            return "Skipping delete event"
+            event_data = {"activity_id": data["object_id"], "user_id": user.id}
+            logger.info(f"deleting {event_data}")
+            response = sqs_client.send_message(
+                QueueUrl=delete_activity_queue_url, MessageBody=json.dumps(event_data)
+            )
 
-        user.load_from_db()
-        event_data = {"activity_id": data["object_id"], "user_id": user.id}
-        logger.info(f"sending event with payload: {event_data}")
-        sqs_client = get_boto3_client("sqs")
-        response = sqs_client.send_message(
-            QueueUrl=activity_queue_url, MessageBody=json.dumps(event_data)
-        )
-        logger.info(response)
+        elif data["aspect_type"] == "create":
+            user.load_from_db()
+            event_data = {"activity_id": data["object_id"], "user_id": user.id}
+            logger.info(f"sending event with payload: {event_data}")
+            response = sqs_client.send_message(
+                QueueUrl=activity_queue_url, MessageBody=json.dumps(event_data)
+            )
+            logger.info(response)
+        else:
+            logger.info("unprocessable aspect type", event_body=event_body)
 
-    logger.info("success")
     return "success"
 
 
