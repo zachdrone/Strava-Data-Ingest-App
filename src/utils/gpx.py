@@ -1,10 +1,11 @@
-import gpxpy
-import pyarrow as pa
-import pyarrow.parquet as pq
-import pandas as pd
-
 from datetime import datetime, timedelta, timezone
 from xml.etree.ElementTree import Element, SubElement, tostring
+
+import gpxpy
+import pandas as pd
+import pyarrow as pa
+import pyarrow.parquet as pq
+
 from src.utils.boto3_singleton import get_boto3_client
 
 
@@ -55,6 +56,13 @@ def create_gpx_from_streams(stream_data, start_date_utc):
 
     gpx_data = tostring(gpx, encoding="utf-8", method="xml")
 
+    return gpx_data
+
+
+def get_gpx_from_s3(bucket, key):
+    s3 = get_boto3_client("s3")
+    response = s3.get_object(Bucket=bucket, Key=key)
+    gpx_data = response["Body"].read()
     return gpx_data
 
 

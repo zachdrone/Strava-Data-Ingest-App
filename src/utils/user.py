@@ -8,7 +8,7 @@ from src.utils.strava import Strava
 
 class User:
 
-    def __init__(self, id=None, table_name="users"):
+    def __init__(self, id=None):
         self.id = id
         self.username = None
         self.firstname = None
@@ -19,10 +19,10 @@ class User:
         self._scope = None
         self.children = []
         self.parents = []
-        self.table_name = table_name
 
         self.dynamodb = get_boto3_resource("dynamodb")
-        self.table = self.dynamodb.Table(self.table_name)
+        self.users_table = self.dynamodb.Table("users")
+        self.activities_table = self.dynamodb.Table("activities")
 
         self.ssm = get_boto3_client("ssm")
 
@@ -89,7 +89,7 @@ class User:
             raise ValueError("User ID must be set to load data from DB.")
 
         try:
-            response = self.table.get_item(Key={"id": self.id})
+            response = self.users_table.get_item(Key={"id": self.id})
             print("DynamoDB Response:", response)  # Debugging output
         except ClientError as e:
             print(f"Error fetching user data from DynamoDB: {e}")
@@ -111,6 +111,15 @@ class User:
             print(f"No data found for user ID: {self.id}")
             return False
 
+    def save_activity_to_db(self, activity_id, parent_id=None, parent_activity_id=None):
+        user_data = {
+            "activity_id": activity_id,
+            "user_id": self.id,
+            "parent_activity_id": parent_activity_id,
+            "parent_id": parent_id,
+        }
+        self.activities_table.put_item(Item=user_data)
+
     def save_to_db(self):
         if not self.id:
             raise ValueError("User ID must be set to save data to DB.")
@@ -129,7 +138,7 @@ class User:
         }
 
         try:
-            self.table.put_item(Item=user_data)
+            self.users_table.put_item(Item=user_data)
             return True
         except ClientError as e:
             print(f"Error saving user data to DynamoDB: {e}")
@@ -137,7 +146,7 @@ class User:
 
     def delete_from_db(self):
         try:
-            self.table.delete_item(Key={"id": self.id})
+            self.users_table.delete_item(Key={"id": self.id})
             return True
         except ClientError as e:
             print(f"Error deleting user data to DynamoDB: {e}")
