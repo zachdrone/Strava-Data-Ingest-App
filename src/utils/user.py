@@ -120,6 +120,11 @@ class User:
         }
         self.activities_table.put_item(Item=user_data)
 
+    def delete_activity_from_db(self, activity_id):
+        self.activities_table.delete_item(
+            Key={"activity_id": activity_id, "user_id": self.id}
+        )
+
     def save_to_db(self):
         if not self.id:
             raise ValueError("User ID must be set to save data to DB.")

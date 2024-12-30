@@ -83,12 +83,15 @@ data "aws_iam_policy_document" "lambda_policy_doc" {
 
     actions = [
       "s3:PutObject",
-      "s3:GetObject"
+      "s3:GetObject",
+      "s3:DeleteObject",
     ]
 
     resources = [
+      "arn:aws:s3:::${aws_s3_bucket.strava_data_bucket.bucket}",
       "arn:aws:s3:::${aws_s3_bucket.strava_data_bucket.bucket}/*",
-      "arn:aws:s3:::${aws_s3_bucket.strava_gpx_data_bucket.bucket}/*"
+      "arn:aws:s3:::${aws_s3_bucket.strava_gpx_data_bucket.bucket}",
+      "arn:aws:s3:::${aws_s3_bucket.strava_gpx_data_bucket.bucket}/*",
     ]
   }
 
@@ -104,7 +107,9 @@ data "aws_iam_policy_document" "lambda_policy_doc" {
 
     resources = [
       aws_sqs_queue.strava_activity_queue.arn,
-      aws_sqs_queue.process_strava_data_trigger_dql.arn
+      aws_sqs_queue.process_strava_data_trigger_dql.arn,
+      aws_sqs_queue.delete_activity_queue.arn,
+      aws_sqs_queue.delete_activity_queue_dlq.arn,
     ]
   }
 }
