@@ -47,8 +47,8 @@ resource "aws_lambda_function" "webhook_endpoint" {
   timeout     = 30
 }
 
-resource "aws_lambda_function" "process_strava_data" {
-  function_name = "process_strava_data"
+resource "aws_lambda_function" "process_strava_data_trigger" {
+  function_name = "process_strava_data_trigger"
   package_type  = "Image"
   image_uri     = "${aws_ecr_repository.my_lambda_repo.repository_url}:latest"
   role          = aws_iam_role.lambda_execution_role.arn
@@ -56,8 +56,8 @@ resource "aws_lambda_function" "process_strava_data" {
   environment {
     variables = {
       ACTIVITY_QUEUE_URL = aws_sqs_queue.strava_activity_queue.url
-      S3_BUCKET          = aws_s3_bucket.strava_data_bucket.bucket
-      handler            = "src.lambdas.process_strava_data.handler.lambda_handler"
+      STATE_MACHINE_ARN  = aws_sfn_state_machine.process_strava_data.arn
+      handler            = "src.lambdas.process_strava_data_trigger.handler.lambda_handler"
     }
   }
 
@@ -65,12 +65,18 @@ resource "aws_lambda_function" "process_strava_data" {
   timeout     = 30
 
   dead_letter_config {
-    target_arn = aws_sqs_queue.process_strava_data_dql.arn
+    target_arn = aws_sqs_queue.process_strava_data_trigger_dql.arn
   }
 }
 
-resource "aws_lambda_function_event_invoke_config" "process_strava_data_config" {
-  function_name                = aws_lambda_function.process_strava_data.function_name
+resource "aws_lambda_event_source_mapping" "process_strava_data_sqs_trigger" {
+  event_source_arn = aws_sqs_queue.strava_activity_queue.arn
+  function_name    = aws_lambda_function.process_strava_data_trigger.arn
+  enabled          = true
+}
+
+resource "aws_lambda_function_event_invoke_config" "process_strava_data_trigger_config" {
+  function_name                = aws_lambda_function.process_strava_data_trigger.function_name
   maximum_event_age_in_seconds = 60
   maximum_retry_attempts       = 0
 }

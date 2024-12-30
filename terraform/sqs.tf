@@ -27,15 +27,8 @@ resource "aws_sqs_queue_policy" "sqs_policy" {
   })
 }
 
-
-resource "aws_lambda_event_source_mapping" "sqs_trigger" {
-  event_source_arn = aws_sqs_queue.strava_activity_queue.arn
-  function_name    = aws_lambda_function.process_strava_data.arn
-  enabled          = true
-}
-
-resource "aws_sqs_queue" "process_strava_data_dql" {
-  name = "process-strava-data-dlq"
+resource "aws_sqs_queue" "process_strava_data_trigger_dql" {
+  name = "process_strava_data_trigger_dlq"
 }
 
 resource "aws_sqs_queue" "prepare_and_upload_gpx_dlq" {

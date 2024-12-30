@@ -52,6 +52,18 @@ data "aws_iam_policy_document" "lambda_policy_doc" {
     effect = "Allow"
 
     actions = [
+      "states:StartExecution"
+    ]
+
+    resources = [
+      "arn:aws:states:${var.aws_region}:${data.aws_caller_identity.current.account_id}:stateMachine:process-strava-data",
+    ]
+  }
+
+  statement {
+    effect = "Allow"
+
+    actions = [
       "dynamodb:DescribeTable",
       "dynamodb:GetItem",
       "dynamodb:Query",
@@ -92,7 +104,7 @@ data "aws_iam_policy_document" "lambda_policy_doc" {
 
     resources = [
       aws_sqs_queue.strava_activity_queue.arn,
-      aws_sqs_queue.process_strava_data_dql.arn
+      aws_sqs_queue.process_strava_data_trigger_dql.arn
     ]
   }
 }
