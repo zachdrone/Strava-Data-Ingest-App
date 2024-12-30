@@ -98,6 +98,24 @@ resource "aws_lambda_function" "prepare_and_upload_gpx" {
   timeout     = 30
 }
 
+resource "aws_lambda_function" "prepare_and_upload_parquet" {
+  function_name = "prepare_and_upload_parquet"
+  package_type  = "Image"
+  image_uri     = "${aws_ecr_repository.my_lambda_repo.repository_url}:latest"
+  role          = aws_iam_role.lambda_execution_role.arn
+
+  environment {
+    variables = {
+      GPX_DATA_BUCKET     = aws_s3_bucket.strava_gpx_data_bucket.bucket
+      PARQUET_DATA_BUCKET = aws_s3_bucket.strava_parquet_data_bucket.bucket
+      handler             = "src.lambdas.prepare_and_upload_parquet.handler.lambda_handler"
+    }
+  }
+
+  memory_size = 512
+  timeout     = 30
+}
+
 resource "aws_lambda_function" "store_activity_in_dynamo" {
   function_name = "store_activity_in_dynamo"
   package_type  = "Image"
@@ -188,7 +206,7 @@ resource "aws_lambda_function" "delete_activity" {
   environment {
     variables = {
       GPX_DATA_BUCKET     = aws_s3_bucket.strava_gpx_data_bucket.bucket
-      PARQUET_DATA_BUCKET = aws_s3_bucket.strava_data_bucket.bucket
+      PARQUET_DATA_BUCKET = aws_s3_bucket.strava_parquet_data_bucket.bucket
       handler             = "src.lambdas.delete_activity.handler.lambda_handler"
     }
   }

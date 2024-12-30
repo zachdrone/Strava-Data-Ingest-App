@@ -1,12 +1,6 @@
 {
   "StartAt": "prepare_and_upload_gpx",
   "States": {
-    "prepare_and_upload_gpx": {
-      "Type": "Task",
-      "Resource": "arn:aws:lambda:${Region}:${AccountId}:function:prepare_and_upload_gpx",
-      "ResultPath": "$.prepare_and_upload_gpx",
-      "Next": "store_activity_in_dynamo"
-    },
     "store_activity_in_dynamo": {
       "Type": "Task",
       "Resource": "arn:aws:lambda:${Region}:${AccountId}:function:store_activity_in_dynamo",
@@ -15,6 +9,18 @@
         "user_id.$": "$.user_id"
       },
       "ResultPath": "$.store_activity_in_dynamo",
+      "Next": "prepare_and_upload_gpx"
+    },
+    "prepare_and_upload_gpx": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:${Region}:${AccountId}:function:prepare_and_upload_gpx",
+      "ResultPath": "$.prepare_and_upload_gpx",
+      "Next": "prepare_and_upload_parquet"
+    },
+    "prepare_and_upload_parquet": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:${Region}:${AccountId}:function:prepare_and_upload_parquet",
+      "ResultPath": "$.prepare_and_upload_parquet",
       "Next": "check_child_users"
     },
     "check_child_users": {
