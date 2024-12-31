@@ -99,7 +99,7 @@ jobs:
         run: terraform init
 
       - name: Terraform Plan
-        run: terraform plan -out=tfplan
+        run: terraform plan -out=tfplan -var "lambda_image_uri=${{ env.IMAGE_URI }}"
 
       - name: Terraform Apply
         run: terraform apply -auto-approve -var "lambda_image_uri=${{ env.IMAGE_URI }}"
