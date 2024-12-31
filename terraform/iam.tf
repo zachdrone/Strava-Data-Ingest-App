@@ -1,3 +1,42 @@
+resource "aws_iam_user" "github_actions" {
+  name = "github-actions"
+}
+
+data "aws_iam_policy_document" "github_actions_policy_doc" {
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "ecr:BatchCheckLayerAvailability",
+      "ecr:GetDownloadUrlForLayer",
+      "ecr:GetRepositoryPolicy",
+      "ecr:DescribeRepositories",
+      "ecr:ListImages",
+      "ecr:DescribeImages",
+      "ecr:BatchGetImage",
+      "ecr:InitiateLayerUpload",
+      "ecr:UploadLayerPart",
+      "ecr:CompleteLayerUpload",
+      "ecr:PutImage"
+    ]
+
+    resources = [
+      "arn:aws:ecr:${var.aws_region}:${data.aws_caller_identity.current.account_id}:repository/my-lambda-repo"
+    ]
+  }
+}
+
+resource "aws_iam_policy" "github_actions_policy" {
+  name        = "github-actions-policy"
+  description = "policy for github actions to access aws resources"
+  policy      = data.aws_iam_policy_document.github_actions_policy_doc.json
+}
+
+resource "aws_iam_user_policy_attachment" "github-actions-policy-attach" {
+  user       = aws_iam_user.github_actions.name
+  policy_arn = aws_iam_policy.github_actions_policy.arn
+}
+
 resource "aws_iam_role" "lambda_execution_role" {
   name = "lambda-execution-role"
 
