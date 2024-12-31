@@ -39,6 +39,8 @@ jobs:
   push_to_ecr:
     # if: github.ref == 'refs/heads/main'
     name: Push Docker image to Amazon ECR
+    env:
+      ECR_REPOSITORY: my-lambda-repo
     runs-on: ubuntu-latest
 
     steps:
@@ -46,6 +48,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12' 
+
+      - name: Set Commit SHA as Env Var
+        run: echo "COMMIT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -69,27 +74,21 @@ jobs:
       #     docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
       #     docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
-      - name: Build and Push Docker Image to ECR
-        env:
-          ECR_REPOSITORY: my-lambda-repo
+      - name: Build and Tag Docker Image
         run: |
-          # Build and tag with :latest
-          docker build -t ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:latest .
-          
-          # Push the image to ECR
+          docker build -t ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:${{ env.COMMIT_SHA }} .
+
+      - name: Push Docker Image to ECR
+        id: push
+        run: |
+          docker push ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:${{ env.COMMIT_SHA }}
+          echo "::set-output name=image_tag::${{ env.COMMIT_SHA }}"
+
+      - name: Tag as Latest (Optional)
+        run: |
+          docker tag ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:${{ env.COMMIT_SHA }} \
+                     ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:latest
           docker push ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:latest
-
-          # Retrieve the digest immediately after push
-          DIGEST=$(docker inspect ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:latest | jq -r '.[0].RepoDigests[0]' | cut -d '@' -f 2)
-
-          # Overwrite :latest with the digest (ensuring Lambda uses the new image)
-          docker tag ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:latest \
-            ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:sha256-$DIGEST
-          
-          # Push digest tag
-          docker push ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:sha256-$DIGEST
-
-          echo "✅ Image pushed as :latest and sha256-$DIGEST"
 
   terraform:
     name: Terraform Plan and Apply
