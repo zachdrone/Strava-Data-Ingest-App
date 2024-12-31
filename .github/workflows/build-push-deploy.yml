@@ -66,10 +66,6 @@ jobs:
         with:
           mask-password: 'true'
 
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
-
       - name: Build and Tag Docker Image
         run: |
           docker build -t ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.COMMIT_SHA }} .
