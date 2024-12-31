@@ -22,7 +22,7 @@ resource "aws_ecr_lifecycle_policy" "my_lambda_repo_lifecycle" {
             }
         },
         {
-            "rulePriority": 1,
+            "rulePriority": 2,
             "description": "Keep last 5 images",
             "selection": {
                 "tagStatus": "tagged",
