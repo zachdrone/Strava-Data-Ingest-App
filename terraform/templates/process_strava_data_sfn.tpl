@@ -1,5 +1,5 @@
 {
-  "StartAt": "prepare_and_upload_gpx",
+  "StartAt": "store_activity_in_dynamo",
   "States": {
     "store_activity_in_dynamo": {
       "Type": "Task",

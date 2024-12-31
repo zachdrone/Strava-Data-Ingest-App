@@ -88,8 +88,8 @@ data "aws_iam_policy_document" "lambda_policy_doc" {
     ]
 
     resources = [
-      "arn:aws:s3:::${aws_s3_bucket.strava_data_bucket.bucket}",
-      "arn:aws:s3:::${aws_s3_bucket.strava_data_bucket.bucket}/*",
+      "arn:aws:s3:::${aws_s3_bucket.strava_parquet_data_bucket.bucket}",
+      "arn:aws:s3:::${aws_s3_bucket.strava_parquet_data_bucket.bucket}/*",
       "arn:aws:s3:::${aws_s3_bucket.strava_gpx_data_bucket.bucket}",
       "arn:aws:s3:::${aws_s3_bucket.strava_gpx_data_bucket.bucket}/*",
     ]
@@ -155,8 +155,8 @@ data "aws_iam_policy_document" "glue_policy_doc" {
     ]
 
     resources = [
-      "arn:aws:s3:::${aws_s3_bucket.strava_data_bucket.bucket}",
-      "arn:aws:s3:::${aws_s3_bucket.strava_data_bucket.bucket}/*"
+      "arn:aws:s3:::${aws_s3_bucket.strava_parquet_data_bucket.bucket}",
+      "arn:aws:s3:::${aws_s3_bucket.strava_parquet_data_bucket.bucket}/*"
     ]
   }
 

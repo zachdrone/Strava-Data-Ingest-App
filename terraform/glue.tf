@@ -8,6 +8,6 @@ resource "aws_glue_crawler" "strava_data_crawler" {
   role          = aws_iam_role.glue_execution_role.arn
 
   s3_target {
-    path = "s3://${aws_s3_bucket.strava_data_bucket.bucket}"
+    path = "s3://${aws_s3_bucket.strava_parquet_data_bucket.bucket}"
   }
 }
