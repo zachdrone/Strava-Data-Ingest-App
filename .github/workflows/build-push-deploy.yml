@@ -60,14 +60,34 @@ jobs:
         with:
           mask-password: 'true'
 
-      - name: Build, tag, and push image to ECR
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: my-lambda-repo
-          IMAGE_TAG: testing
+      # - name: Build, tag, and push image to ECR
+      #   env:
+      #     ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+      #     ECR_REPOSITORY: my-lambda-repo
+      #     IMAGE_TAG: testing
+      #   run: |
+      #     docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+      #     docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+      - name: Build and Push Docker Image to ECR
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          # Build and tag with :latest
+          docker build -t ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:latest .
+          
+          # Push the image to ECR
+          docker push ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:latest
+
+          # Retrieve the digest immediately after push
+          DIGEST=$(docker inspect ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:latest | jq -r '.[0].RepoDigests[0]' | cut -d '@' -f 2)
+
+          # Overwrite :latest with the digest (ensuring Lambda uses the new image)
+          docker tag ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:latest \
+            ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:sha256-$DIGEST
+          
+          # Push digest tag
+          docker push ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:sha256-$DIGEST
+
+          echo "✅ Image pushed as :latest and sha256-$DIGEST"
 
   terraform:
     name: Terraform Plan and Apply
