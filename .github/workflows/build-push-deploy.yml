@@ -123,12 +123,8 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
-
       - name: Install dependencies
-        run: poetry install
+        run: pip install boto3
 
       - name: Run deploy script
-        run: |
-          poetry run python scripts/deploy_all_lambdas.py
+        run: python scripts/deploy_all_lambdas.py
