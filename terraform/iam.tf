@@ -7,7 +7,6 @@ data "aws_iam_policy_document" "github_actions_policy_doc" {
     effect = "Allow"
 
     actions = [
-      "ecr:GetAuthorizationToken",
       "ecr:BatchCheckLayerAvailability",
       "ecr:GetDownloadUrlForLayer",
       "ecr:GetRepositoryPolicy",
@@ -23,6 +22,63 @@ data "aws_iam_policy_document" "github_actions_policy_doc" {
 
     resources = [
       "arn:aws:ecr:${var.aws_region}:${data.aws_caller_identity.current.account_id}:repository/my-lambda-repo"
+    ]
+  }
+
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "s3:GetObject",
+      "s3:ListBucket"
+    ]
+
+    resources = [
+      "arn:aws:s3:::${aws_s3_bucket.zach_app_terraform_state_bucket.bucket}",
+      "arn:aws:s3:::${aws_s3_bucket.zach_app_terraform_state_bucket.bucket}/*"
+    ]
+  }
+
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "ecr:GetAuthorizationToken",
+    ]
+
+    resources = ["*"]
+  }
+
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "dynamodb:DescribeTable",
+      "dynamodb:GetItem",
+      "dynamodb:PutItem",
+      "dynamodb:DeleteItem",
+    ]
+
+    resources = [
+      "arn:aws:dynamodb:${var.aws_region}:${data.aws_caller_identity.current.account_id}:table/terraform-locks",
+    ]
+  }
+
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "ssm:GetParameters",
+      "ssm:GetParameter",
+      "ssm:DescribeParameters"
+    ]
+
+    resources = [
+      "arn:aws:ssm:${var.aws_region}:${data.aws_caller_identity.current.account_id}:parameter/encryption_key",
+      "arn:aws:ssm:${var.aws_region}:${data.aws_caller_identity.current.account_id}:parameter/strava_callback_state",
+      "arn:aws:ssm:${var.aws_region}:${data.aws_caller_identity.current.account_id}:parameter/strava_client_id",
+      "arn:aws:ssm:${var.aws_region}:${data.aws_caller_identity.current.account_id}:parameter/strava_client_secret",
+      "arn:aws:ssm:${var.aws_region}:${data.aws_caller_identity.current.account_id}:parameter/webhook_subscription_id",
     ]
   }
 }
