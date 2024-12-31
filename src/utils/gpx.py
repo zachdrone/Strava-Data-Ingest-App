@@ -102,6 +102,9 @@ def gpx_to_parquet(gpx_data, s3_bucket_name, s3_file_key):
 
     # Use boto3 to upload the Parquet data to S3
     s3_client = get_boto3_client("s3")
-    s3_client.put_object(Bucket=s3_bucket_name, Key=s3_file_key, Body=parquet_data)
+    resp = s3_client.put_object(
+        Bucket=s3_bucket_name, Key=s3_file_key, Body=parquet_data
+    )
 
     print(f"Parquet file successfully uploaded to s3://{s3_bucket_name}/{s3_file_key}")
+    print(resp)
