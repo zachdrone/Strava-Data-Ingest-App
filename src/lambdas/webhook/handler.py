@@ -15,8 +15,8 @@ from http import HTTPStatus
 logger = Logger(service="strava-webhook")
 app = APIGatewayRestResolver(cors=CORSConfig(allow_origin="*"))
 
-activity_queue_url = os.environ["ACTIVITY_QUEUE_URL"]
-delete_activity_queue_url = os.environ["DELETE_ACTIVITY_QUEUE_URL"]
+activity_queue_url = os.environ.get("ACTIVITY_QUEUE_URL")
+delete_activity_queue_url = os.environ.get("DELETE_ACTIVITY_QUEUE_URL")
 
 sqs_client = get_boto3_client("sqs")
 
