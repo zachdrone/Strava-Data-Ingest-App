@@ -8,4 +8,4 @@ tracer = Tracer(service="health-endpoint")
 @logger.inject_lambda_context(log_event=True)
 @tracer.capture_lambda_handler
 def lambda_handler(event, context):
-    return {"statusCode": 200, "body": "We are healthy yo!"}
+    return {"statusCode": 200, "body": "We are healthy!"}
