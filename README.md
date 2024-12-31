@@ -10,8 +10,6 @@ This feature allows users to define a list of "child" accounts. If a child's nam
 - Converts it into a GPX file containing latitude, longitude, speed, distance, and cadence data.
 - Uploads the activity to the child user's Strava account.
 
-**Personal Use Case:** Automatically sync activities to my dog's Strava profile for easy tracking and sharing.
-
 ### 2. Datalake Ingestion for Analytics
 The app facilitates advanced analytics by:
 - Downloading activity stream data upon activity completion.
@@ -23,11 +21,14 @@ The app facilitates advanced analytics by:
 ### 3. Reproducibility
 The entire infrastructure is defined using **Terraform**, making it easily reproducible and manageable across environments.
 
-## Architecture
+## Diagrams
 
-![Architecture Diagram](exercise-data-app-architecture.png)
+### High Level Architecture  
+![Architecture Diagram](architecture-diagram.png)
+### Process Strava Data Step Function Graph
+![Process Strava Data SFN](process-strava-data-graph.png)
 
-## Strava API Interaction Workflow
+## Strava Authorization Workflow
 
 1. **User Authorization**  
    - When a user authorizes the app, the Strava API sends a `GET` request to the `/callback` endpoint.  
