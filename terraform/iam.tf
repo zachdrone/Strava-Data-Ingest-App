@@ -7,6 +7,7 @@ data "aws_iam_policy_document" "github_actions_policy_doc" {
     effect = "Allow"
 
     actions = [
+      "ecr:GetAuthorizationToken",
       "ecr:BatchCheckLayerAvailability",
       "ecr:GetDownloadUrlForLayer",
       "ecr:GetRepositoryPolicy",
