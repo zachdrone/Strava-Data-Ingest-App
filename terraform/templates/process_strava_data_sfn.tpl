@@ -20,6 +20,11 @@
     "prepare_and_upload_parquet": {
       "Type": "Task",
       "Resource": "arn:aws:lambda:${Region}:${AccountId}:function:prepare_and_upload_parquet",
+      "Parameters": {
+        "activity_id.$": "$.activity_id",
+        "user_id.$": "$.user_id",
+        "gpx_data_s3_key.$": "$.prepare_and_upload_gpx.gpx_data_s3_key"
+      },
       "ResultPath": "$.prepare_and_upload_parquet",
       "Next": "check_child_users"
     },
