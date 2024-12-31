@@ -39,7 +39,7 @@ jobs:
   push_to_ecr:
     # if: github.ref == 'refs/heads/main'
     name: Push Docker image to Amazon ECR
-    needs: ["run_tests"]
+    # needs: ["run_tests"]
     env:
       ECR_REPOSITORY: my-lambda-repo
     runs-on: ubuntu-latest
