@@ -27,15 +27,3 @@ The entire infrastructure is defined using **Terraform**, making it easily repro
 ![Architecture Diagram](architecture-diagram.png)
 ### Process Strava Data Step Function Graph
 ![Process Strava Data SFN](process-strava-data-graph.png)
-
-## Strava Authorization Workflow
-
-1. **User Authorization**  
-   - When a user authorizes the app, the Strava API sends a `GET` request to the `/callback` endpoint.  
-   - This request includes a short-lived authorization code, which the app exchanges for a user-specific access token and refresh token.  
-   - These tokens are encrypted and securely stored in a DynamoDB table.
-
-2. **Activity Notifications**  
-   - When a registered user completes an activity, Strava sends a `GET` request to the `/webhook` endpoint.  
-   - The app responds to a verification challenge to confirm webhook registration.  
-   - Once verified, Strava sends a `POST` request to the `/webhook` endpoint with detailed activity information, triggering the processing workflows.
