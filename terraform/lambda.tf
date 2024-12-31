@@ -1,7 +1,12 @@
+variable "lambda_image_uri" {
+  description = "ECR Image URI for Lambda"
+  type        = string
+}
+
 resource "aws_lambda_function" "health_endpoint" {
   function_name = "health_endpoint"
   package_type  = "Image"
-  image_uri     = "${aws_ecr_repository.my_lambda_repo.repository_url}:latest"
+  image_uri     = var.lambda_image_uri
   role          = aws_iam_role.lambda_execution_role.arn
 
   environment {
@@ -17,7 +22,7 @@ resource "aws_lambda_function" "health_endpoint" {
 resource "aws_lambda_function" "callback_endpoint" {
   function_name = "callback_endpoint"
   package_type  = "Image"
-  image_uri     = "${aws_ecr_repository.my_lambda_repo.repository_url}:latest"
+  image_uri     = var.lambda_image_uri
   role          = aws_iam_role.lambda_execution_role.arn
 
   environment {
@@ -33,7 +38,7 @@ resource "aws_lambda_function" "callback_endpoint" {
 resource "aws_lambda_function" "webhook_endpoint" {
   function_name = "webhook_endpoint"
   package_type  = "Image"
-  image_uri     = "${aws_ecr_repository.my_lambda_repo.repository_url}:latest"
+  image_uri     = var.lambda_image_uri
   role          = aws_iam_role.lambda_execution_role.arn
 
   environment {
@@ -51,7 +56,7 @@ resource "aws_lambda_function" "webhook_endpoint" {
 resource "aws_lambda_function" "process_strava_data_trigger" {
   function_name = "process_strava_data_trigger"
   package_type  = "Image"
-  image_uri     = "${aws_ecr_repository.my_lambda_repo.repository_url}:latest"
+  image_uri     = var.lambda_image_uri
   role          = aws_iam_role.lambda_execution_role.arn
 
   environment {
@@ -84,7 +89,7 @@ resource "aws_lambda_function_event_invoke_config" "process_strava_data_trigger_
 resource "aws_lambda_function" "prepare_and_upload_gpx" {
   function_name = "prepare_and_upload_gpx"
   package_type  = "Image"
-  image_uri     = "${aws_ecr_repository.my_lambda_repo.repository_url}:latest"
+  image_uri     = var.lambda_image_uri
   role          = aws_iam_role.lambda_execution_role.arn
 
   environment {
@@ -101,7 +106,7 @@ resource "aws_lambda_function" "prepare_and_upload_gpx" {
 resource "aws_lambda_function" "prepare_and_upload_parquet" {
   function_name = "prepare_and_upload_parquet"
   package_type  = "Image"
-  image_uri     = "${aws_ecr_repository.my_lambda_repo.repository_url}:latest"
+  image_uri     = var.lambda_image_uri
   role          = aws_iam_role.lambda_execution_role.arn
 
   environment {
@@ -119,7 +124,7 @@ resource "aws_lambda_function" "prepare_and_upload_parquet" {
 resource "aws_lambda_function" "store_activity_in_dynamo" {
   function_name = "store_activity_in_dynamo"
   package_type  = "Image"
-  image_uri     = "${aws_ecr_repository.my_lambda_repo.repository_url}:latest"
+  image_uri     = var.lambda_image_uri
   role          = aws_iam_role.lambda_execution_role.arn
 
   environment {
@@ -135,7 +140,7 @@ resource "aws_lambda_function" "store_activity_in_dynamo" {
 resource "aws_lambda_function" "check_child_users" {
   function_name = "check_child_users"
   package_type  = "Image"
-  image_uri     = "${aws_ecr_repository.my_lambda_repo.repository_url}:latest"
+  image_uri     = var.lambda_image_uri
   role          = aws_iam_role.lambda_execution_role.arn
 
   environment {
@@ -151,7 +156,7 @@ resource "aws_lambda_function" "check_child_users" {
 resource "aws_lambda_function" "validate_child" {
   function_name = "validate_child"
   package_type  = "Image"
-  image_uri     = "${aws_ecr_repository.my_lambda_repo.repository_url}:latest"
+  image_uri     = var.lambda_image_uri
   role          = aws_iam_role.lambda_execution_role.arn
 
   environment {
@@ -167,7 +172,7 @@ resource "aws_lambda_function" "validate_child" {
 resource "aws_lambda_function" "duplicate_activity" {
   function_name = "duplicate_activity"
   package_type  = "Image"
-  image_uri     = "${aws_ecr_repository.my_lambda_repo.repository_url}:latest"
+  image_uri     = var.lambda_image_uri
   role          = aws_iam_role.lambda_execution_role.arn
 
   environment {
@@ -184,7 +189,7 @@ resource "aws_lambda_function" "duplicate_activity" {
 resource "aws_lambda_function" "check_duplication_status" {
   function_name = "check_duplication_status"
   package_type  = "Image"
-  image_uri     = "${aws_ecr_repository.my_lambda_repo.repository_url}:latest"
+  image_uri     = var.lambda_image_uri
   role          = aws_iam_role.lambda_execution_role.arn
 
   environment {
@@ -200,7 +205,7 @@ resource "aws_lambda_function" "check_duplication_status" {
 resource "aws_lambda_function" "delete_activity" {
   function_name = "delete_activity"
   package_type  = "Image"
-  image_uri     = "${aws_ecr_repository.my_lambda_repo.repository_url}:latest"
+  image_uri     = var.lambda_image_uri
   role          = aws_iam_role.lambda_execution_role.arn
 
   environment {
