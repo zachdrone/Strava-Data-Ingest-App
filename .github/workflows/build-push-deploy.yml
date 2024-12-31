@@ -6,8 +6,8 @@ on:
     #   - main  # Trigger on push to main branch
 
 jobs:
-  test:
-    name: Push Docker image to Amazon ECR
+  run_tests:
+    name: Run tests 
     runs-on: ubuntu-latest
 
     steps:
