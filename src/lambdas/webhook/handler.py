@@ -63,7 +63,9 @@ def webhook_handler():
         updates = data.get("updates")
         if updates.get("authorized") == "false":
             logger.info(f"User {user.id} revoked access, deleting from db")
-            user.delete_from_db()
+            gpx_data_bucket = os.environ.get("GPX_DATA_BUCKET")
+            parquet_data_bucket = os.environ.get("PARQUET_DATA_BUCKET")
+            user.delete_user(gpx_data_bucket, parquet_data_bucket)
             return "User deleted"
 
     if data["object_type"] == "activity":
