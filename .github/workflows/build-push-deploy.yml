@@ -70,6 +70,8 @@ jobs:
       #     docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
       - name: Build and Push Docker Image to ECR
+        env:
+          ECR_REPOSITORY: my-lambda-repo
         run: |
           # Build and tag with :latest
           docker build -t ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:latest .
