@@ -39,6 +39,7 @@ jobs:
   push_to_ecr:
     # if: github.ref == 'refs/heads/main'
     name: Push Docker image to Amazon ECR
+    needs: ["run_tests"]
     env:
       ECR_REPOSITORY: my-lambda-repo
     runs-on: ubuntu-latest
@@ -65,30 +66,24 @@ jobs:
         with:
           mask-password: 'true'
 
-      # - name: Build, tag, and push image to ECR
-      #   env:
-      #     ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-      #     ECR_REPOSITORY: my-lambda-repo
-      #     IMAGE_TAG: testing
-      #   run: |
-      #     docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-      #     docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
 
       - name: Build and Tag Docker Image
         run: |
-          docker build -t ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:${{ env.COMMIT_SHA }} .
+          docker build -t ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.COMMIT_SHA }} .
 
-      - name: Push Docker Image to ECR
-        id: push
+      - name: Push Docker Image with Commit Hash
         run: |
-          docker push ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:${{ env.COMMIT_SHA }}
-          echo "::set-output name=image_tag::${{ env.COMMIT_SHA }}"
+          docker push ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.COMMIT_SHA }}
 
-      - name: Tag as Latest (Optional)
+      - name: Overwrite :latest with Commit Hash
         run: |
-          docker tag ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:${{ env.COMMIT_SHA }} \
-                     ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:latest
-          docker push ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:latest
+          docker tag ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.COMMIT_SHA }} \
+                     ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest
+          
+          docker push ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest
 
   terraform:
     name: Terraform Plan and Apply
