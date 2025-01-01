@@ -87,7 +87,8 @@
             "Parameters": {
               "gpx_data_s3_key.$": "$.gpx_data_s3_key",
               "activity_sport_type.$": "$.activity_sport_type",
-              "child_id.$": "$.child_id"
+              "child_id.$": "$.child_id",
+              "parent_id.$": "$.parent_id"
             },
             "ResultPath": "$.duplicate_activity",
             "Next": "initialize_retry_counter"

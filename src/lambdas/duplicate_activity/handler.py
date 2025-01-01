@@ -18,12 +18,16 @@ def convert_camel_to_sentence(text):
 def lambda_handler(event, context):
     logger.info(event)
     child_id = event["child_id"]
+    parent_id = event["parent_id"]
     s3_key = event["gpx_data_s3_key"]
     sport_name = convert_camel_to_sentence(event["activity_sport_type"])
 
     child = User(child_id)
     child.load_from_db()
     child.refresh_tokens()
+
+    parent = User(parent_id)
+    parent.load_from_db()
 
     gpx_data = get_gpx_from_s3(gpx_bucket_name, s3_key)
 
@@ -33,7 +37,7 @@ def lambda_handler(event, context):
     resp = child.strava.upload_activity_file(
         gpx_data,
         "gpx",
-        f"{sport_name} with {child.firstname}!",
+        f"{sport_name} with {parent.firstname}!",
     )
     logger.info(f"upload response: {resp}")
 
