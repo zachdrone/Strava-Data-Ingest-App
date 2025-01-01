@@ -20,7 +20,8 @@ def lambda_handler(event, context):
     child_id = event["child_id"]
     parent_id = event["parent_id"]
     s3_key = event["gpx_data_s3_key"]
-    sport_name = convert_camel_to_sentence(event["activity_sport_type"])
+    sport_type = event["activity_sport_type"]
+    sport_name = convert_camel_to_sentence(sport_type)
 
     child = User(child_id)
     child.load_from_db()
@@ -35,9 +36,10 @@ def lambda_handler(event, context):
         f"uploading activity to child user {child.id} {child.firstname} {child.lastname}"
     )
     resp = child.strava.upload_activity_file(
-        gpx_data,
-        "gpx",
-        f"{sport_name} with {parent.firstname}!",
+        data=gpx_data,
+        data_type="gpx",
+        name=f"{sport_name} with {parent.firstname}!",
+        sport_type=sport_type,
     )
     logger.info(f"upload response: {resp}")
 

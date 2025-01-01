@@ -90,13 +90,16 @@ class Strava:
 
         return response
 
-    def upload_activity_file(self, data, data_type="gpx", name="My activity"):
+    def upload_activity_file(
+        self, data, sport_type, data_type="gpx", name="My activity"
+    ):
         headers = {"Authorization": f"Bearer {self.user.access_token}"}
 
         files = {
             "file": ("activity.gpx", data),
             "data_type": (None, data_type),
             "name": (None, name),
+            "sport_type": sport_type,
         }
 
         response = make_request(
