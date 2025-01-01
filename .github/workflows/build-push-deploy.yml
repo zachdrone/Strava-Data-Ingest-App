@@ -73,6 +73,7 @@ jobs:
   terraform:
     name: Terraform Plan and Apply
     runs-on: ubuntu-latest
+    needs: ["run_tests"]
     defaults:
       run:
         working-directory: ./terraform
