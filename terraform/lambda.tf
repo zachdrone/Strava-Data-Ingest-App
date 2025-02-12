@@ -11,7 +11,7 @@ resource "aws_lambda_function" "health_endpoint" {
   }
 
   memory_size = 512
-  timeout     = 30
+  timeout     = 300
 }
 
 resource "aws_lambda_function" "callback_endpoint" {
@@ -27,7 +27,7 @@ resource "aws_lambda_function" "callback_endpoint" {
   }
 
   memory_size = 512
-  timeout     = 30
+  timeout     = 300
 }
 
 resource "aws_lambda_function" "webhook_endpoint" {
@@ -45,7 +45,7 @@ resource "aws_lambda_function" "webhook_endpoint" {
   }
 
   memory_size = 512
-  timeout     = 30
+  timeout     = 300
 }
 
 resource "aws_lambda_function" "process_strava_data_trigger" {
@@ -62,7 +62,7 @@ resource "aws_lambda_function" "process_strava_data_trigger" {
   }
 
   memory_size = 512
-  timeout     = 30
+  timeout     = 300
 
   dead_letter_config {
     target_arn = aws_sqs_queue.process_strava_data_trigger_dql.arn
@@ -95,7 +95,7 @@ resource "aws_lambda_function" "prepare_and_upload_gpx" {
   }
 
   memory_size = 512
-  timeout     = 30
+  timeout     = 300
 }
 
 resource "aws_lambda_function" "prepare_and_upload_parquet" {
@@ -113,7 +113,7 @@ resource "aws_lambda_function" "prepare_and_upload_parquet" {
   }
 
   memory_size = 512
-  timeout     = 30
+  timeout     = 300
 }
 
 resource "aws_lambda_function" "store_activity_in_dynamo" {
@@ -129,7 +129,7 @@ resource "aws_lambda_function" "store_activity_in_dynamo" {
   }
 
   memory_size = 512
-  timeout     = 30
+  timeout     = 300
 }
 
 resource "aws_lambda_function" "check_child_users" {
@@ -145,7 +145,7 @@ resource "aws_lambda_function" "check_child_users" {
   }
 
   memory_size = 512
-  timeout     = 30
+  timeout     = 300
 }
 
 resource "aws_lambda_function" "validate_child" {
@@ -161,7 +161,7 @@ resource "aws_lambda_function" "validate_child" {
   }
 
   memory_size = 512
-  timeout     = 30
+  timeout     = 300
 }
 
 resource "aws_lambda_function" "duplicate_activity" {
@@ -178,7 +178,7 @@ resource "aws_lambda_function" "duplicate_activity" {
   }
 
   memory_size = 512
-  timeout     = 30
+  timeout     = 300
 }
 
 resource "aws_lambda_function" "check_duplication_status" {
@@ -194,7 +194,7 @@ resource "aws_lambda_function" "check_duplication_status" {
   }
 
   memory_size = 512
-  timeout     = 30
+  timeout     = 300
 }
 
 resource "aws_lambda_function" "delete_activity" {
@@ -212,7 +212,7 @@ resource "aws_lambda_function" "delete_activity" {
   }
 
   memory_size = 512
-  timeout     = 30
+  timeout     = 300
 }
 
 resource "aws_lambda_event_source_mapping" "delete_activity_sqs_trigger" {
