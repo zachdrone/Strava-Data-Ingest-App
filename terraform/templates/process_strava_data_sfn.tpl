@@ -9,13 +9,29 @@
         "user_id.$": "$.user_id"
       },
       "ResultPath": "$.store_activity_in_dynamo",
-      "Next": "prepare_and_upload_gpx"
+      "Next": "prepare_and_upload_gpx",
+      "Retry": [
+        {
+          "ErrorEquals": ["Lambda.ServiceException", "Lambda.AWSLambdaException", "Lambda.SdkClientException"],
+          "IntervalSeconds": 5,
+          "MaxAttempts": 3,
+          "BackoffRate": 2.0
+        }
+      ]
     },
     "prepare_and_upload_gpx": {
       "Type": "Task",
       "Resource": "arn:aws:lambda:${Region}:${AccountId}:function:prepare_and_upload_gpx",
       "ResultPath": "$.prepare_and_upload_gpx",
-      "Next": "prepare_and_upload_parquet"
+      "Next": "prepare_and_upload_parquet",
+      "Retry": [
+        {
+          "ErrorEquals": ["Lambda.ServiceException", "Lambda.AWSLambdaException", "Lambda.SdkClientException"],
+          "IntervalSeconds": 5,
+          "MaxAttempts": 3,
+          "BackoffRate": 2.0
+        }
+      ]
     },
     "prepare_and_upload_parquet": {
       "Type": "Task",
@@ -26,6 +42,14 @@
         "gpx_data_s3_key.$": "$.prepare_and_upload_gpx.gpx_data_s3_key"
       },
       "ResultPath": "$.prepare_and_upload_parquet",
+      "Retry": [
+        {
+          "ErrorEquals": ["Lambda.ServiceException", "Lambda.AWSLambdaException", "Lambda.SdkClientException"],
+          "IntervalSeconds": 5,
+          "MaxAttempts": 3,
+          "BackoffRate": 2.0
+        }
+      ],
       "Next": "check_child_users"
     },
     "check_child_users": {
@@ -35,6 +59,14 @@
         "user_id.$": "$.user_id"
       },
       "ResultPath": "$.check_child_users",
+      "Retry": [
+        {
+          "ErrorEquals": ["Lambda.ServiceException", "Lambda.AWSLambdaException", "Lambda.SdkClientException"],
+          "IntervalSeconds": 5,
+          "MaxAttempts": 3,
+          "BackoffRate": 2.0
+        }
+      ],
       "Next": "validate_for_each_child"
     },
     "validate_for_each_child": {
@@ -60,6 +92,14 @@
               "parent_id.$": "$.parent_id"
             },
             "ResultPath": "$.validate_child",
+            "Retry": [
+              {
+                "ErrorEquals": ["Lambda.ServiceException", "Lambda.AWSLambdaException", "Lambda.SdkClientException"],
+                "IntervalSeconds": 5,
+                "MaxAttempts": 3,
+                "BackoffRate": 2.0
+              }
+            ],
             "Next": "validation_choice"
           },
           "validation_choice": {
@@ -91,6 +131,14 @@
               "parent_id.$": "$.parent_id"
             },
             "ResultPath": "$.duplicate_activity",
+            "Retry": [
+              {
+                "ErrorEquals": ["Lambda.ServiceException", "Lambda.AWSLambdaException", "Lambda.SdkClientException"],
+                "IntervalSeconds": 5,
+                "MaxAttempts": 3,
+                "BackoffRate": 2.0
+              }
+            ],
             "Next": "initialize_retry_counter"
           },
           "initialize_retry_counter": {
@@ -114,6 +162,14 @@
               "upload_id.$": "$.duplicate_activity.upload_id"
             },
             "ResultPath": "$.check_duplication_status",
+            "Retry": [
+              {
+                "ErrorEquals": ["Lambda.ServiceException", "Lambda.AWSLambdaException", "Lambda.SdkClientException"],
+                "IntervalSeconds": 5,
+                "MaxAttempts": 3,
+                "BackoffRate": 2.0
+              }
+            ],
             "Next": "duplication_complete_choice"
           },
           "duplication_complete_choice": {
@@ -179,6 +235,14 @@
               "parent_activity_id.$": "$.activity_id"
             },
             "ResultPath": "$.store_child_activity_in_dynamo",
+            "Retry": [
+              {
+                "ErrorEquals": ["Lambda.ServiceException", "Lambda.AWSLambdaException", "Lambda.SdkClientException"],
+                "IntervalSeconds": 5,
+                "MaxAttempts": 3,
+                "BackoffRate": 2.0
+              }
+            ],
             "End": true
           },
           "skip_child": {
