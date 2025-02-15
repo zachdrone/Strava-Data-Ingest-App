@@ -30,8 +30,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: ["run_tests"]
     env:
-      - image_tag: ${{ steps.login-ecr.outputs.registry }}/my-lambda-repo:latest
-      - cache_image_tag: ${{ steps.login-ecr.outputs.registry }}/my-lambda-repo-cache:latest
+      image_tag: ${{ steps.login-ecr.outputs.registry }}/my-lambda-repo:latest
+      cache_image_tag: ${{ steps.login-ecr.outputs.registry }}/my-lambda-repo-cache:latest
 
     steps:
       - uses: actions/checkout@v4
