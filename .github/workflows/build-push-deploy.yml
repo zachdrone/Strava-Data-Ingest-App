@@ -62,12 +62,21 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build dev
-        if: github.ref != 'refs/heads/main'
+      # - name: Build dev
+      #   if: github.ref != 'refs/heads/main'
+      #   uses: docker/build-push-action@v6
+      #   with:
+      #     push: false
+      #     tags: latest
+      #     cache-from: type=gha
+      #     cache-to: type=gha,mode=max
+
+      - name: Build and push prod
+        # if: github.ref == 'refs/heads/main'
         uses: docker/build-push-action@v6
         with:
-          push: false
-          tags: latest
+          push: true
+          tags: $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
