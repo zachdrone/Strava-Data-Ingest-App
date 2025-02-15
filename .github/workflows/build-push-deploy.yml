@@ -67,6 +67,8 @@ jobs:
         with:
           push: ${{ github.ref == 'refs/heads/main' }}
           tags: ${{ steps.login-ecr.outputs.registry }}/my-lambda-repo:latest
+          platforms:
+            - linux/amd64
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
