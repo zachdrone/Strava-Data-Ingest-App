@@ -58,8 +58,8 @@ jobs:
           tags: ${{ steps.login-ecr.outputs.registry }}/my-lambda-repo-cache:latest
           provenance: false
           platforms: linux/amd64
-          # cache-from: type=registry,ref=${{ steps.login-ecr.outputs.registry }}/my-lambda-repo-cache:latest
-          # cache-to: type=registry,ref=${{ steps.login-ecr.outputs.registry }}/my-lambda-repo-cache:latest,mode=max,oci-mediatypes=false
+          cache-from: type=registry,ref=${{ steps.login-ecr.outputs.registry }}/my-lambda-repo-cache:latest
+          cache-to: type=registry,ref=${{ steps.login-ecr.outputs.registry }}/my-lambda-repo-cache:latest,mode=max,oci-mediatypes=false
 
   terraform:
     name: Terraform Plan and Apply
