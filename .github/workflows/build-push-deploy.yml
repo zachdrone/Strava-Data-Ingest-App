@@ -71,6 +71,7 @@ jobs:
           tags: ${{ steps.login-ecr.outputs.registry }}/my-lambda-repo:latest
           provenance: false
           platforms: linux/amd64
+          push: true
           cache-from: type=registry,ref=${{ steps.login-ecr.outputs.registry }}/my-lambda-repo-cache:lastest
           cache-to: type=registry,ref=${{ steps.login-ecr.outputs.registry }}/my-lambda-repo-cache:lastest,mode=max
 
