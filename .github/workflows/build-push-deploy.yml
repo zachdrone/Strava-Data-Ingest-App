@@ -68,8 +68,11 @@ jobs:
             --cache-to mode=max,image-manifest=true,oci-mediatypes=true,type=registry,ref=${{ steps.login-ecr.outputs.registry }}/my-lambda-repo-cache:latest \
             --cache-from type=registry,ref=${{ steps.login-ecr.outputs.registry }}/my-lambda-repo-cache:latest \
             -t ${{ steps.login-ecr.outputs.registry }}/my-lambda-repo-cache:latest .
-
-
+        
+      - name: Docker push
+        shell: bash
+        run: |
+          docker push ${{ steps.login-ecr.outputs.registry }}/my-lambda-repo:latest
 
   terraform:
     name: Terraform Plan and Apply
