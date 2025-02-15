@@ -29,6 +29,9 @@ jobs:
     name: Push Docker image to Amazon ECR
     runs-on: ubuntu-latest
     needs: ["run_tests"]
+    env:
+      - image_tag: ${{ steps.login-ecr.outputs.registry }}/my-lambda-repo:latest
+      - cache_image_tag: ${{ steps.login-ecr.outputs.registry }}/my-lambda-repo-cache:latest
 
     steps:
       - uses: actions/checkout@v4
@@ -51,28 +54,18 @@ jobs:
         with:
           platforms: linux/amd64
 
-      # - name: Build and push
-      #   uses: docker/build-push-action@v6
-      #   with:
-      #     push: ${{ github.ref == 'refs/heads/main' }}
-      #     tags: ${{ steps.login-ecr.outputs.registry }}/my-lambda-repo-cache:latest
-      #     provenance: false
-      #     platforms: linux/amd64
-      #     cache-from: type=registry,ref=${{ steps.login-ecr.outputs.registry }}/my-lambda-repo-cache:latest
-      #     cache-to: type=registry,ref=${{ steps.login-ecr.outputs.registry }}/my-lambda-repo-cache:latest,mode=max,oci-mediatypes=true,image-manifests=true
-
-      - name: Build and push
+      - name: Docker build and cache
         shell: bash
         run: |
           docker buildx build --load --platform=linux/amd64 \
-            --cache-to mode=max,image-manifest=true,oci-mediatypes=true,type=registry,ref=${{ steps.login-ecr.outputs.registry }}/my-lambda-repo-cache:latest \
-            --cache-from type=registry,ref=${{ steps.login-ecr.outputs.registry }}/my-lambda-repo-cache:latest \
-            -t ${{ steps.login-ecr.outputs.registry }}/my-lambda-repo:latest .
+            --cache-to mode=max,image-manifest=true,oci-mediatypes=true,type=registry,ref=${{ env.cache_image_tag }} \
+            --cache-from type=registry,ref=${{ env.cache_image_tag }} \
+            -t ${{ env.image_tag }} .
         
       - name: Docker push
         shell: bash
         run: |
-          docker push ${{ steps.login-ecr.outputs.registry }}/my-lambda-repo:latest
+          docker push ${{ env.image_tag }}
 
   terraform:
     name: Terraform Plan and Apply
