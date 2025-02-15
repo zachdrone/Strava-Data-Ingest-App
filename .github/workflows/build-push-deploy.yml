@@ -80,7 +80,7 @@ jobs:
   terraform:
     name: Terraform Plan and Apply
     runs-on: ubuntu-latest
-    needs: ["run_tests, build_and_push_container"]
+    needs: ["run_tests", "build_and_push_container"]
     defaults:
       run:
         working-directory: ./terraform
