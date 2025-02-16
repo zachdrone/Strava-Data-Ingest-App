@@ -1,5 +1,6 @@
 resource "aws_ecr_repository" "my_lambda_repo" {
-  name = "my-lambda-repo"
+  name                 = "my-lambda-repo"
+  image_tag_mutability = "IMMUTABLE"
 }
 
 resource "aws_ecr_repository" "my_lambda_repo_cache" {
@@ -64,12 +65,12 @@ resource "aws_ecr_lifecycle_policy" "my_lambda_repo_lifecycle_cache" {
         },
         {
             "rulePriority": 2,
-            "description": "Keep last 5 images",
+            "description": "Keep last 1 images",
             "selection": {
                 "tagStatus": "tagged",
                 "tagPrefixList": ["v"],
                 "countType": "imageCountMoreThan",
-                "countNumber": 5
+                "countNumber": 1
             },
             "action": {
                 "type": "expire"
