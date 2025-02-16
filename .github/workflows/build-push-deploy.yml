@@ -4,6 +4,18 @@ on:
   push
 
 jobs:
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      full_sha: ${{ steps.commit_hash.outputs.full_sha }}
+      short_sha: ${{ steps.commit_hash.outputs.short_sha }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get commit hash
+        id: commit_hash
+        run: |
+          echo "full_sha=$GITHUB_SHA" >> $GITHUB_OUTPUT
   run_tests:
     name: Run tests 
     runs-on: ubuntu-latest
@@ -53,7 +65,7 @@ jobs:
 
       - name: Docker build and cache
         env:
-          image_tag: ${{ steps.login-ecr.outputs.registry }}/my-lambda-repo:latest
+          image_tag: ${{ steps.login-ecr.outputs.registry }}/my-lambda-repo:${{ github.sha }}
           cache_image_tag: ${{ steps.login-ecr.outputs.registry }}/my-lambda-repo-cache:latest
         shell: bash
         run: |
@@ -98,36 +110,36 @@ jobs:
 
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main'
-        run: terraform apply -auto-approve
+        run: terraform apply -var "docker_image_tag=$GITHUB_SHA" -auto-approve
   
-  deploy_lambdas:
-    name: Deploy all lambdas
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    needs: ["terraform", "build_and_push_container"]
-    
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12' 
-          cache: 'pip'
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1 
-
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
-        with:
-          mask-password: 'true'
-
-      - name: Install dependencies
-        run: pip install boto3
-
-      - name: Run deploy script
-        run: python scripts/deploy_all_lambdas.py
+  # deploy_lambdas:
+  #   name: Deploy all lambdas
+  #   if: github.ref == 'refs/heads/main'
+  #   runs-on: ubuntu-latest
+  #   needs: ["terraform", "build_and_push_container"]
+  #
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: actions/setup-python@v5
+  #       with:
+  #         python-version: '3.12' 
+  #         cache: 'pip'
+  #
+  #     - name: Configure AWS credentials
+  #       uses: aws-actions/configure-aws-credentials@v4
+  #       with:
+  #         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  #         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  #         aws-region: us-east-1 
+  #
+  #     - name: Login to Amazon ECR
+  #       id: login-ecr
+  #       uses: aws-actions/amazon-ecr-login@v1
+  #       with:
+  #         mask-password: 'true'
+  #
+  #     - name: Install dependencies
+  #       run: pip install boto3
+  #
+  #     - name: Run deploy script
+  #       run: python scripts/deploy_all_lambdas.py
