@@ -15,19 +15,6 @@ resource "aws_ecr_lifecycle_policy" "my_lambda_repo_lifecycle" {
     "rules": [
         {
             "rulePriority": 1,
-            "description": "Expire images older than 14 days",
-            "selection": {
-                "tagStatus": "untagged",
-                "countType": "sinceImagePushed",
-                "countUnit": "days",
-                "countNumber": 14
-            },
-            "action": {
-                "type": "expire"
-            }
-        },
-        {
-            "rulePriority": 2,
             "description": "Keep last 5 images",
             "selection": {
                 "tagStatus": "tagged",
@@ -52,19 +39,6 @@ resource "aws_ecr_lifecycle_policy" "my_lambda_repo_lifecycle_cache" {
     "rules": [
         {
             "rulePriority": 1,
-            "description": "Expire images older than 14 days",
-            "selection": {
-                "tagStatus": "untagged",
-                "countType": "sinceImagePushed",
-                "countUnit": "days",
-                "countNumber": 14
-            },
-            "action": {
-                "type": "expire"
-            }
-        },
-        {
-            "rulePriority": 2,
             "description": "Keep last 1 images",
             "selection": {
                 "tagStatus": "tagged",
