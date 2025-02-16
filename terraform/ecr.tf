@@ -12,34 +12,20 @@ resource "aws_ecr_lifecycle_policy" "my_lambda_repo_lifecycle" {
 
   policy = <<EOF
 {
-  "rules": [
-    {
-      "rulePriority": 1,
-      "description": "Expire images older than 3 days except the latest 3",
-      "selection": {
-        "tagStatus": "any",
-        "countType": "imageCountMoreThan",
-        "countNumber": 3,
-        "countUnit": "days",
-        "countValue": 3
-      },
-      "action": {
-        "type": "expire"
-      }
-    },
-    {
-      "rulePriority": 2,
-      "description": "Keep only the latest image after 3 days",
-      "selection": {
-        "tagStatus": "any",
-        "countType": "imageCountMoreThan",
-        "countNumber": 1
-      },
-      "action": {
-        "type": "expire"
-      }
-    }
-  ]
+    "rules": [
+        {
+            "rulePriority": 1,
+            "description": "Keep last 1 images",
+            "selection": {
+                "tagStatus": "any",
+                "countType": "imageCountMoreThan",
+                "countNumber": 1
+            },
+            "action": {
+                "type": "expire"
+            }
+        }
+    ]
 }
 
 EOF
