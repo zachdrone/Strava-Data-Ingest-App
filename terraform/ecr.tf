@@ -17,8 +17,6 @@ resource "aws_ecr_lifecycle_policy" "my_lambda_repo_lifecycle" {
             "rulePriority": 1,
             "description": "Keep last 5 images",
             "selection": {
-                "tagStatus": "tagged",
-                "tagPrefixList": ["v"],
                 "countType": "imageCountMoreThan",
                 "countNumber": 5
             },
@@ -41,8 +39,6 @@ resource "aws_ecr_lifecycle_policy" "my_lambda_repo_lifecycle_cache" {
             "rulePriority": 1,
             "description": "Keep last 1 images",
             "selection": {
-                "tagStatus": "tagged",
-                "tagPrefixList": ["v"],
                 "countType": "imageCountMoreThan",
                 "countNumber": 1
             },
