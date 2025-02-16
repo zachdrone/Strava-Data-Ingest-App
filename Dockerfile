@@ -1,6 +1,6 @@
 FROM public.ecr.aws/lambda/python:3.13
 
-RUN pip install --no-cache-dir poetry
+RUN pip install --no-cache-dir poetry==2.0.1
 
 ENV PATH="/root/.local/bin:$PATH"
 
