@@ -40,6 +40,8 @@ resource "aws_lambda_function" "webhook_endpoint" {
     variables = {
       ACTIVITY_QUEUE_URL        = aws_sqs_queue.strava_activity_queue.url
       DELETE_ACTIVITY_QUEUE_URL = aws_sqs_queue.delete_activity_queue.url
+      GPX_DATA_BUCKET           = aws_s3_bucket.strava_gpx_data_bucket.bucket
+      PARQUET_DATA_BUCKET       = aws_s3_bucket.strava_parquet_data_bucket.bucket
       handler                   = "src.lambdas.webhook.handler.lambda_handler"
     }
   }

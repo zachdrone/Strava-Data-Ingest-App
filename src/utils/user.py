@@ -149,6 +149,20 @@ class User:
             print(f"Error saving user data to DynamoDB: {e}")
             return False
 
+    def delete_files_with_prefix(bucket_name, prefix):
+        s3 = get_boto3_resource("s3")
+        bucket = s3.Bucket(bucket_name)
+
+        objects_to_delete = bucket.objects.filter(Prefix=prefix)
+        for obj in objects_to_delete:
+            print(f"Deleting {obj.key}")
+            obj.delete()
+
+    def delete_user(self, gpx_data_bucket, parquet_data_bucket):
+        self.delete_from_db()
+        self.delete_files_with_prefix(gpx_data_bucket, self.id)
+        self.delete_files_with_prefix(parquet_data_bucket, self.id)
+
     def delete_from_db(self):
         try:
             self.users_table.delete_item(Key={"id": self.id})
