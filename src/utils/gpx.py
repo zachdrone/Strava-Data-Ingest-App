@@ -93,6 +93,10 @@ def gpx_to_parquet(gpx_data, s3_bucket_name, s3_file_key):
     # Convert DataFrame to Parquet
     table = pa.Table.from_pandas(df)
 
+    # Empty Check
+    if table.num_rows == 0:
+        return
+
     # Convert to byte buffer (memory) instead of file
     parquet_buffer = pa.BufferOutputStream()
     pq.write_table(table, parquet_buffer)
